@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tiktik — Dynamic Island Notifications Demo</title>
+  <meta name="description" content="Interactive demo for Tiktik, a Dynamic Island–style notification library with GSAP animations." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0f0f1a;
+      color: #e2e8f0;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Animated gradient background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(99, 102, 241, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(168, 85, 247, 0.1) 0%, transparent 50%),
+        radial-gradient(ellipse at 60% 80%, rgba(59, 130, 246, 0.08) 0%, transparent 50%);
+      z-index: -1;
+      animation: bg-shift 15s ease-in-out infinite alternate;
+    }
+
+    @keyframes bg-shift {
+      0% { opacity: 1; }
+      100% { opacity: 0.6; transform: scale(1.1); }
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      padding: 60px 20px 40px;
+    }
+
+    .header h1 {
+      font-size: 3.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #818cf8, #c084fc, #f472b6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 12px;
+      letter-spacing: -1px;
+    }
+
+    .header p {
+      font-size: 1.15rem;
+      color: #94a3b8;
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    .badge {
+      display: inline-block;
+      margin-top: 16px;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      background: rgba(99, 102, 241, 0.15);
+      color: #818cf8;
+      border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    /* Main grid */
+    .demo-grid {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 20px 80px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    /* Card */
+    .card {
+      background: rgba(30, 30, 50, 0.6);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 20px;
+      padding: 28px;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .card h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: #f1f5f9;
+    }
+
+    .card p {
+      font-size: 13px;
+      color: #64748b;
+      margin-bottom: 18px;
+      line-height: 1.5;
+    }
+
+    .card-wide {
+      grid-column: 1 / -1;
+    }
+
+    /* Buttons */
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 14px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+      color: #fff;
+    }
+
+    .btn:hover { transform: scale(1.04); }
+    .btn:active { transform: scale(0.97); }
+
+    .btn-success { background: linear-gradient(135deg, #10b981, #059669); }
+    .btn-error { background: linear-gradient(135deg, #ef4444, #dc2626); }
+    .btn-info { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+    .btn-warning { background: linear-gradient(135deg, #f59e0b, #d97706); color: #1a1a2e; }
+    .btn-default { background: linear-gradient(135deg, #64748b, #475569); }
+    .btn-loading { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+    .btn-promise { background: linear-gradient(135deg, #ec4899, #db2777); }
+    .btn-stack { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+    .btn-custom { background: linear-gradient(135deg, #f97316, #ea580c); }
+    .btn-dismiss { background: linear-gradient(135deg, #6b7280, #4b5563); }
+
+    /* Select */
+    .select-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .select-group label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+
+    .select-group select {
+      padding: 8px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(30, 30, 50, 0.9);
+      color: #e2e8f0;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .select-group select:focus {
+      border-color: #818cf8;
+    }
+
+    /* Code block */
+    .code-block {
+      margin-top: 16px;
+      background: rgba(15, 15, 26, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
+      padding: 16px;
+      font-family: 'Fira Code', 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #94a3b8;
+      overflow-x: auto;
+      line-height: 1.6;
+    }
+
+    .code-block .kw { color: #c084fc; }
+    .code-block .fn { color: #818cf8; }
+    .code-block .str { color: #34d399; }
+    .code-block .cm { color: #475569; }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 40px 20px;
+      color: #475569;
+      font-size: 13px;
+    }
+
+    .footer a {
+      color: #818cf8;
+      text-decoration: none;
+    }
+
+    @media (max-width: 480px) {
+      .header h1 { font-size: 2.2rem; }
+      .header p { font-size: 1rem; }
+      .demo-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body class="tiktik-dark">
+  <!-- Header -->
+  <header class="header">
+    <h1>🔔 Tiktik</h1>
+    <p>Dynamic Island–style notifications for the modern web. Silky GSAP animations, accessible, and endlessly customizable.</p>
+    <span class="badge">v1.0.0 • TypeScript • GSAP Powered</span>
+  </header>
+
+  <!-- Demo Grid -->
+  <main class="demo-grid">
+    <!-- Toast Types -->
+    <section class="card">
+      <h2>🎨 Toast Types</h2>
+      <p>Each type has its own gradient, icon, and accent color.</p>
+      <div class="btn-row">
+        <button class="btn btn-success" id="btn-success" onclick="Tiktik.default.success('Changes saved successfully!')">Success</button>
+        <button class="btn btn-error" id="btn-error" onclick="Tiktik.default.error('Something went wrong!')">Error</button>
+        <button class="btn btn-info" id="btn-info" onclick="Tiktik.default.info('New update available.')">Info</button>
+        <button class="btn btn-warning" id="btn-warning" onclick="Tiktik.default.warning('Disk space running low!')">Warning</button>
+        <button class="btn btn-default" id="btn-default" onclick="Tiktik.default.showToast({ message: 'Default notification' })">Default</button>
+      </div>
+    </section>
+
+    <!-- Progress Bar -->
+    <section class="card">
+      <h2>📊 Progress Bar</h2>
+      <p>Visual countdown showing time remaining before auto-dismiss.</p>
+      <div class="btn-row">
+        <button class="btn btn-info" id="btn-progress" onclick="Tiktik.default.success('Uploading file…', { progress: true, duration: 5000 })">With Progress</button>
+        <button class="btn btn-warning" id="btn-progress-long" onclick="Tiktik.default.warning('Processing data…', { progress: true, duration: 8000 })">Long Progress</button>
+      </div>
+    </section>
+
+    <!-- Position Selector -->
+    <section class="card">
+      <h2>📍 Positions</h2>
+      <p>Show toasts in any corner or edge of the screen.</p>
+      <div class="select-group">
+        <label for="pos-select">Position:</label>
+        <select id="pos-select">
+          <option value="top-center">Top Center</option>
+          <option value="top-left">Top Left</option>
+          <option value="top-right">Top Right</option>
+          <option value="bottom-center">Bottom Center</option>
+          <option value="bottom-left">Bottom Left</option>
+          <option value="bottom-right">Bottom Right</option>
+        </select>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-info" id="btn-position" onclick="showAtPosition()">Show at Position</button>
+      </div>
+    </section>
+
+    <!-- Stacking -->
+    <section class="card">
+      <h2>📚 Stacking</h2>
+      <p>Multiple toasts stack with smooth animated reflow.</p>
+      <div class="btn-row">
+        <button class="btn btn-stack" id="btn-stack" onclick="stackDemo()">Stack 4 Toasts</button>
+        <button class="btn btn-dismiss" id="btn-dismiss-all" onclick="Tiktik.default.dismissAll()">Dismiss All</button>
+      </div>
+    </section>
+
+    <!-- Promise -->
+    <section class="card">
+      <h2>⏳ Promise Toast</h2>
+      <p>Automatically transitions from loading → success or error.</p>
+      <div class="btn-row">
+        <button class="btn btn-promise" id="btn-promise-ok" onclick="promiseDemo(true)">Promise (Resolve)</button>
+        <button class="btn btn-error" id="btn-promise-fail" onclick="promiseDemo(false)">Promise (Reject)</button>
+      </div>
+    </section>
+
+    <!-- Interactivity -->
+    <section class="card">
+      <h2>👆 Interactivity</h2>
+      <p>Expandable content on hover, action buttons, and click callbacks.</p>
+      <div class="btn-row">
+        <button class="btn btn-custom" id="btn-expanded" onclick="expandedDemo()">Expandable</button>
+        <button class="btn btn-info" id="btn-actions" onclick="actionDemo()">With Buttons</button>
+        <button class="btn btn-success" id="btn-click" onclick="clickDemo()">Clickable</button>
+      </div>
+    </section>
+
+    <!-- Custom HTML -->
+    <section class="card">
+      <h2>🖼️ Custom HTML</h2>
+      <p>Inject any HTML content into the toast body.</p>
+      <div class="btn-row">
+        <button class="btn btn-loading" id="btn-html" onclick="htmlDemo()">HTML Content</button>
+        <button class="btn btn-custom" id="btn-emoji" onclick="Tiktik.default.showToast({ message: 'Party time!', icon: '🎉', duration: 4000 })">Custom Icon</button>
+      </div>
+    </section>
+
+    <!-- Loading -->
+    <section class="card">
+      <h2>⏳ Manual Loading</h2>
+      <p>Persistent loading toast, dismiss it manually.</p>
+      <div class="btn-row">
+        <button class="btn btn-loading" id="btn-loading" onclick="loadingDemo()">Start Loading</button>
+      </div>
+    </section>
+
+    <!-- Code Example -->
+    <section class="card card-wide">
+      <h2>💻 Usage</h2>
+      <p>Get started in seconds — import and call.</p>
+      <div class="code-block">
+        <span class="cm">// npm install tiktik gsap</span><br/>
+        <span class="kw">import</span> Tiktik <span class="kw">from</span> <span class="str">'tiktik'</span>;<br/><br/>
+        <span class="cm">// Simple toast</span><br/>
+        Tiktik.<span class="fn">success</span>(<span class="str">'Saved!'</span>);<br/><br/>
+        <span class="cm">// With options</span><br/>
+        Tiktik.<span class="fn">showToast</span>({<br/>
+        &nbsp;&nbsp;message: <span class="str">'Hello World'</span>,<br/>
+        &nbsp;&nbsp;type: <span class="str">'info'</span>,<br/>
+        &nbsp;&nbsp;duration: <span class="str">5000</span>,<br/>
+        &nbsp;&nbsp;position: <span class="str">'bottom-right'</span>,<br/>
+        &nbsp;&nbsp;progress: <span class="kw">true</span>,<br/>
+        });<br/><br/>
+        <span class="cm">// Promise toast</span><br/>
+        Tiktik.<span class="fn">promise</span>(fetch(<span class="str">'/api/data'</span>), {<br/>
+        &nbsp;&nbsp;loading: <span class="str">'Fetching…'</span>,<br/>
+        &nbsp;&nbsp;success: <span class="str">'Data loaded!'</span>,<br/>
+        &nbsp;&nbsp;error: <span class="str">'Failed to load'</span>,<br/>
+        });
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>Tiktik v1.0.0 &mdash; Built with TypeScript &amp; GSAP</p>
+  </footer>
+
+  <!-- Load GSAP from CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <!-- Load Tiktik UMD bundle -->
+  <script src="dist/tiktik.umd.js"></script>
+
+  <script>
+    // Configure dark theme for demo
+    Tiktik.default.configure({ theme: 'dark', maxToasts: 6 });
+
+    // --- Demo Functions ---
+
+    function showAtPosition() {
+      const pos = document.getElementById('pos-select').value;
+      Tiktik.default.info('Toast at ' + pos, { position: pos, progress: true });
+    }
+
+    function stackDemo() {
+      const types = ['success', 'error', 'info', 'warning'];
+      const msgs = [
+        'File uploaded successfully',
+        'Network connection lost',
+        'You have 3 new messages',
+        'Battery running low'
+      ];
+      types.forEach(function(type, i) {
+        setTimeout(function() {
+          Tiktik.default.showToast({ message: msgs[i], type: type, duration: 6000 });
+        }, i * 300);
+      });
+    }
+
+    function promiseDemo(shouldResolve) {
+      var fakePromise = new Promise(function(resolve, reject) {
+        setTimeout(function() {
+          if (shouldResolve) resolve({ data: 'ok' });
+          else reject(new Error('Server error'));
+        }, 2500);
+      });
+
+      Tiktik.default.promise(fakePromise, {
+        loading: 'Fetching data from server…',
+        success: 'Data loaded successfully!',
+        error: 'Failed to load data',
+      }).catch(function() {});
+    }
+
+    function expandedDemo() {
+      Tiktik.default.showToast({
+        message: 'Deployment started',
+        type: 'info',
+        duration: 8000,
+        expandedContent: 'Building Docker image, pushing to registry, and updating Kubernetes pods. Estimated time: 2 minutes.',
+        progress: true,
+      });
+    }
+
+    function actionDemo() {
+      Tiktik.default.showToast({
+        message: 'Message archived',
+        type: 'default',
+        duration: 6000,
+        buttons: [
+          { label: 'Undo', onClick: function() { Tiktik.default.success('Undo successful!'); } },
+          { label: 'View', onClick: function() { Tiktik.default.info('Opening archive…'); } }
+        ],
+      });
+    }
+
+    function clickDemo() {
+      Tiktik.default.showToast({
+        message: 'Click me for more info!',
+        type: 'success',
+        duration: 5000,
+        onClick: function() {
+          Tiktik.default.info('You clicked the toast! 🎯');
+        },
+      });
+    }
+
+    function htmlDemo() {
+      Tiktik.default.showToast({
+        message: '',
+        type: 'info',
+        duration: 6000,
+        html: '<div style="display:flex;align-items:center;gap:10px"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=tiktik" width="32" height="32" style="border-radius:50%"/><div><strong>John Doe</strong><br/><span style="opacity:0.7;font-size:12px">Sent you a message</span></div></div>',
+      });
+    }
+
+    function loadingDemo() {
+      var id = Tiktik.default.loading('Processing your request…');
+      setTimeout(function() {
+        Tiktik.default.dismiss(id);
+        Tiktik.default.success('Request completed!');
+      }, 4000);
+    }
+  </script>
+</body>
+</html>
