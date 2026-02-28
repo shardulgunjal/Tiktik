@@ -178,7 +178,7 @@ Tiktik.dismiss()`}
           <div className="p-4 rounded-xl border border-warning/20 bg-warning/5">
             <p className="text-sm text-text-secondary">
               <span className="text-warning font-semibold">⚡ Bundle splitting:</span>{' '}
-              The promise handler and gesture modules are lazy-loaded. Your initial bundle stays lean (~6KB gzip),
+              The promise handler and gesture modules are lazy-loaded. Your initial bundle stays lean (~5KB gzip),
               with additional chunks only loaded when needed.
             </p>
           </div>
