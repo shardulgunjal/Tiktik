@@ -433,3 +433,73 @@
     align-items: stretch;
   }
 }
+
+/* ==============================
+   Swipe-to-Dismiss
+   ============================== */
+.tiktik-toast {
+  touch-action: pan-y; /* Allow vertical scroll, capture horizontal */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.tiktik-toast.tiktik-swiping {
+  transition: none !important; /* 1:1 drag feel during swipe */
+  cursor: grabbing;
+}
+
+/* ==============================
+   Deck Stacking (Sonner-style)
+   ============================== */
+.tiktik-container .tiktik-toast {
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.35s ease,
+              box-shadow 0.2s ease;
+  transform-origin: center top;
+}
+
+.tiktik-container[class*="bottom"] .tiktik-toast {
+  transform-origin: center bottom;
+}
+
+/* When container is hovered (expanded mode), restore gap */
+.tiktik-container.tiktik-expanded {
+  gap: var(--tiktik-gap);
+}
+
+/* Collapsed deck: overlap toasts */
+.tiktik-container:not(.tiktik-expanded) {
+  gap: 0;
+}
+
+/* ==============================
+   Reduced Motion (WCAG)
+   ============================== */
+@media (prefers-reduced-motion: reduce) {
+  .tiktik-toast,
+  .tiktik-toast *,
+  .tiktik-progress-bar {
+    animation-duration: 0.01s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.15s !important;
+  }
+
+  .tiktik-animate-in {
+    animation: none !important;
+    opacity: 1;
+  }
+
+  .tiktik-animate-out {
+    animation: none !important;
+  }
+
+  .tiktik-spinner {
+    animation-duration: 1.5s !important;
+    animation-iteration-count: infinite !important;
+  }
+
+  .tiktik-toast:hover,
+  .tiktik-toast.tiktik-hover {
+    transform: none;
+  }
+}

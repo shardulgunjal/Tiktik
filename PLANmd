@@ -1,0 +1,86 @@
+Tiktik: Strategic Product Plan & Competitive Analysis
+Executive Summary
+Tiktik has a strong foundation as a vanilla JavaScript notification library with premium GSAP-powered "Dynamic Island" aesthetics. However, to surpass industry leaders like Sonner, React-Hot-Toast, and React-Toastify, Tiktik must evolve. This document outlines a strategic roadmap to elevate Tiktik from a specialized animation library to the definitive, high-performance, accessible notification standard for the modern web.
+
+1. Competitive Analysis
+React-Toastify
+Position: The Legacy Standard
+
+Strengths: Incredibly feature-rich (swipe-to-close, pause on focus loss), widely adopted, extensive customization API.
+Weaknesses: Large bundle size (~16KB gzipped), visually dated default design, React-only.
+Tiktik's Advantage: Tiktik is framework-agnostic (Vanilla JS) and offers vastly superior out-of-the-box motion design.
+React Hot Toast
+Position: The Minimalist Favorite
+
+Strengths: Extremely lightweight (<5KB gzipped), elegant default styles, headless useToaster mode for custom rendering.
+Weaknesses: Fewer built-in features, basic animations, React-only.
+Tiktik's Advantage: Tiktik offers "wow-factor" GSAP animations and complex content handling (progress bars, expanded content) that Hot Toast lacks.
+Sonner
+Position: The Modern Developer's Choice (Next.js / shadcn/ui)
+
+Strengths: Exceptional developer experience (DX), highly accessible, buttery smooth layout projections, simple API, natively handles complex stacking.
+Weaknesses: Highly opinionated API, React-specific (though ported to others).
+Tiktik's Advantage: Tiktik brings Sonner-level aesthetics to the entire web ecosystem, not just React, and utilizes GSAP for more complex physics-based motion.
+Notyf / Toastify.js (Vanilla JS Competitors)
+Position: The Vanilla Alternatives
+
+Strengths: Zero dependencies, very small footprint, easy to drop into plain HTML.
+Weaknesses: Basic CSS transitions, limited complex interactivity, poor accessibility out-of-the-box.
+Tiktik's Advantage: Tiktik bridges the gap between the simplicity of vanilla JS and the premium feel of modern React libraries.
+2. Feature Comparison Matrix
+Feature	Tiktik (Current)	Sonner	React Hot Toast	React-Toastify
+Framework	Agnostic (Vanilla)	React/Vue	React	React
+Animation Engine	GSAP + CSS	CSS Spring	CSS	CSS
+Stacking/Reflow	✅ Basic	✅ Advanced	❌ Basic	✅ Basic
+Accessibility (A11y)	⚠️ Partial	✅ Best-in-class	✅ Good	✅ Good
+Swipe to Dismiss	❌ No	✅ Yes	❌ No	✅ Yes
+Headless/Unstyled Mode	❌ No	❌ No	✅ Yes	❌ No
+Bundle Size (Core)	~18KB (+GSAP)	~5KB	~5KB	~16KB
+Promise API	✅ Yes	✅ Yes	✅ Yes	✅ Yes
+3. Identified Weaknesses in Tiktik
+Despite its premium feel, Tiktik falls short in several key areas necessary for market dominance:
+
+Accessibility (WCAG Compliance):
+
+Lacks prefers-reduced-motion media queries to automatically disable GSAP physics for users with vestibular disorders.
+Screen reader announcements exist (role="alert"), but lack nuanced focus management when action buttons are present.
+No built-in keyboard shortcut to jump focus to the active toast container.
+Advanced Interaction Patterns:
+
+No Swipe-to-Dismiss: A critical expectation for modern mobile UX.
+Stacking Physics: Current GSAP reflow is basic. It lacks the overlapping, card-deck style "peeking" stack popularized by Sonner.
+Developer Experience (DX) & Ecosystem:
+
+No Native Framework Wrappers: While vanilla JS is great, developers want idiomatic wrappers (<TiktikProvider />, useToast()) for React, Vue, and Svelte.
+Bundle Size: Relying on GSAP as a peer dependency limits adoption for highly size-constrained projects.
+Extensibility:
+
+No rendering hooks or "Headless Mode". Users cannot entirely replace the DOM structure of the toast while keeping the logic/animations.
+4. Strategic Improvement Roadmap
+Phase 1: The UX & Accessibility Overhaul (Immediate Priority)
+Implement Swipe-to-Dismiss: Add touch/mouse drag physics handling (interpolated by GSAP when available) to swipe toasts away.
+WCAG Strict Compliance:
+Add prefers-reduced-motion detection mapped to Tiktik's animationSpeed = 0 or CSS fallback toggle.
+Implement a keyboard shortcut (e.g., Alt + T, customizable) to move focus directly to the toast region.
+Modern "Deck" Stacking: Overhaul the stacking algorithm to emulate Sonner's overlapping deck style, saving screen space when multiple toasts appear.
+Phase 2: The DX & Framework Expansion (Mid-term)
+First-Party React/Vue/Svelte Wrappers: Create official packages (@tiktik/react, @tiktik/vue) that wrap the vanilla core, providing hooks like useTiktik() and components.
+Headless Mode / Custom Renderers: Allow developers to pass a custom DOM element or framework component into 
+showToast
+, bypassing the default pill UI entirely.
+Phase 3: Performance & Optimization (Long-term)
+GSAP Decoupling / WAAPI Migration: Investigate moving the exact GSAP elastic easing curves to the native Web Animations API (WAAPI) to remove the GSAP peer dependency entirely while maintaining the exact same physics.
+Lazy Loading: Implement code-splitting for complex features (like progress bars or promise handling) so the base bundle drops below 5KB.
+5. Positioning Statement
+"Tiktik is the definitive notification engine for the modern web. It combines the premium, physics-based 'Dynamic Island' fluid motion expected in top-tier apps with the universal compatibility of Vanilla JavaScript. Unchained from specific frameworks, Tiktik delivers Sonner-level aesthetics, enterprise-grade accessibility, and unmatched interactive flexibility to any stack."
+
+6. Actionable Next Steps for Development
+Refactor Stacking: Update 
+toast-manager.ts
+ and 
+animations.ts
+ to implement a "Deck" overlapping stack (scale down older toasts behind the newest one).
+Add Swipe Gesture: Implement a pointer-events listener module for swipe-to-dismiss.
+Accessibility Audit Patch: Add reduced-motion media queries to 
+tiktik.css
+ and focus traps for toasts with actionable buttons.

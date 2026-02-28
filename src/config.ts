@@ -14,6 +14,8 @@ const defaultConfig: TiktikConfig = {
   maxToasts: 5,
   sound: false,
   theme: 'auto',
+  stackStyle: 'deck',
+  swipeToDismiss: true,
 };
 
 /** Active configuration (clone of defaults) */

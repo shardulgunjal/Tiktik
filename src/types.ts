@@ -52,6 +52,8 @@ export interface ToastOptions {
   ariaLabel?: string;
   /** Play a sound on show */
   sound?: boolean;
+  /** Enable swipe-to-dismiss gesture (default: true) */
+  swipeToDismiss?: boolean;
 }
 
 /** Promise toast messages */
@@ -70,6 +72,10 @@ export interface TiktikConfig {
   maxToasts: number;
   sound: boolean;
   theme: 'auto' | 'light' | 'dark';
+  /** Stack style: 'vertical' (classic) or 'deck' (Sonner-style overlapping) */
+  stackStyle: 'vertical' | 'deck';
+  /** Enable swipe-to-dismiss globally */
+  swipeToDismiss: boolean;
 }
 
 /** Internal toast state */

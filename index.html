@@ -224,7 +224,7 @@
   <header class="header">
     <h1>🔔 Tiktik</h1>
     <p>Dynamic Island–style notifications for the modern web. Silky GSAP animations, accessible, and endlessly customizable.</p>
-    <span class="badge">v1.0.0 • TypeScript • GSAP Powered</span>
+    <span class="badge">v2.0.0 • TypeScript • GSAP Powered • WCAG Accessible</span>
   </header>
 
   <!-- Demo Grid -->
@@ -274,11 +274,22 @@
 
     <!-- Stacking -->
     <section class="card">
-      <h2>📚 Stacking</h2>
-      <p>Multiple toasts stack with smooth animated reflow.</p>
+      <h2>📚 Deck Stacking</h2>
+      <p>Toasts overlap in a card-deck. Hover the stack to expand. Toggle between modes.</p>
       <div class="btn-row">
         <button class="btn btn-stack" id="btn-stack" onclick="stackDemo()">Stack 4 Toasts</button>
+        <button class="btn btn-default" id="btn-toggle-stack" onclick="toggleStackMode()">Toggle Vertical</button>
         <button class="btn btn-dismiss" id="btn-dismiss-all" onclick="Tiktik.default.dismissAll()">Dismiss All</button>
+      </div>
+    </section>
+
+    <!-- Swipe -->
+    <section class="card">
+      <h2>👈 Swipe to Dismiss</h2>
+      <p>Drag any toast left or right to swipe it away. Spring-back if you don't drag far enough.</p>
+      <div class="btn-row">
+        <button class="btn btn-info" id="btn-swipe" onclick="swipeDemo()">Try Swipe</button>
+        <button class="btn btn-dismiss" id="btn-no-swipe" onclick="noSwipeDemo()">No Swipe Toast</button>
       </div>
     </section>
 
@@ -350,7 +361,7 @@
   </main>
 
   <footer class="footer">
-    <p>Tiktik v1.0.0 &mdash; Built with TypeScript &amp; GSAP</p>
+    <p>Tiktik v2.0.0 &mdash; Built with TypeScript &amp; GSAP &mdash; WCAG Accessible</p>
   </footer>
 
   <!-- Load GSAP from CDN -->
@@ -359,8 +370,9 @@
   <script src="dist/tiktik.umd.js"></script>
 
   <script>
-    // Configure dark theme for demo
-    Tiktik.default.configure({ theme: 'dark', maxToasts: 6 });
+    // Configure dark theme + deck stacking for demo
+    Tiktik.default.configure({ theme: 'dark', maxToasts: 6, stackStyle: 'deck', swipeToDismiss: true });
+    var currentStackMode = 'deck';
 
     // --- Demo Functions ---
 
@@ -447,6 +459,22 @@
         Tiktik.default.dismiss(id);
         Tiktik.default.success('Request completed!');
       }, 4000);
+    }
+
+    function swipeDemo() {
+      Tiktik.default.info('← Swipe me left or right to dismiss! →', { duration: 10000 });
+    }
+
+    function noSwipeDemo() {
+      Tiktik.default.warning('I cannot be swiped away!', { swipeToDismiss: false, duration: 5000 });
+    }
+
+    function toggleStackMode() {
+      Tiktik.default.dismissAll();
+      currentStackMode = currentStackMode === 'deck' ? 'vertical' : 'deck';
+      Tiktik.default.configure({ stackStyle: currentStackMode });
+      Tiktik.default.success('Stack mode: ' + currentStackMode, { duration: 2000 });
+      document.getElementById('btn-toggle-stack').textContent = currentStackMode === 'deck' ? 'Toggle Vertical' : 'Toggle Deck';
     }
   </script>
 </body>

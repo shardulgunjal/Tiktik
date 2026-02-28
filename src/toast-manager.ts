@@ -1,19 +1,24 @@
 /**
  * Tiktik - Toast Manager
  * Manages the lifecycle of all active toast notifications.
+ * Integrates swipe-to-dismiss, deck stacking, and accessibility features.
  */
 
 import type { ToastOptions, ToastInstance, ToastPosition } from './types';
 import { getConfig } from './config';
 import { getContainer, createToastElement, cleanupContainer } from './dom';
 import { getIcon } from './icons';
-import { animateIn, animateOut, animateProgress, animateReflow, animateContentChange } from './animations';
+import { animateIn, animateOut, animateProgress, animateReflow, animateContentChange, applyDeckLayout } from './animations';
+import { attachSwipe } from './swipe';
 
 /** Active toasts indexed by ID */
 const activeToasts = new Map<string, ToastInstance>();
 
 /** Counter for unique IDs */
 let idCounter = 0;
+
+/** Track deck hover listeners per container */
+const deckListeners = new Map<string, { enter: () => void; leave: () => void }>();
 
 /**
  * Generate a unique toast ID.
@@ -74,8 +79,14 @@ export function show(userOptions: ToastOptions): string {
   // Animate in
   animateIn(element, options.animationSpeed);
 
-  // Reflow siblings
-  animateReflow(container);
+  // Apply stacking layout
+  const isDeck = config.stackStyle === 'deck';
+  if (isDeck) {
+    applyDeckLayout(container, false);
+    setupDeckHover(container, options.position);
+  } else {
+    animateReflow(container);
+  }
 
   // Start progress bar
   let progressController: ReturnType<typeof animateProgress> | null = null;
@@ -92,7 +103,13 @@ export function show(userOptions: ToastOptions): string {
     instance.timer = setTimeout(() => dismiss(id), options.duration);
   }
 
-  // Pause on hover
+  // --- Swipe-to-dismiss ---
+  const enableSwipe = options.swipeToDismiss ?? config.swipeToDismiss;
+  if (enableSwipe) {
+    attachSwipe(element, () => dismiss(id));
+  }
+
+  // --- Pause on hover ---
   element.addEventListener('mouseenter', () => {
     if (instance.dismissed) return;
     instance.pausedAt = Date.now();
@@ -104,8 +121,6 @@ export function show(userOptions: ToastOptions): string {
     }
 
     progressController?.pause();
-
-    // Add hover-expanded class
     element.classList.add('tiktik-hover');
   });
 
@@ -119,11 +134,45 @@ export function show(userOptions: ToastOptions): string {
     }
 
     progressController?.resume();
-
     element.classList.remove('tiktik-hover');
   });
 
   return id;
+}
+
+/**
+ * Set up hover listeners on a container for deck expand/collapse.
+ */
+function setupDeckHover(container: HTMLElement, position: ToastPosition): void {
+  if (deckListeners.has(position)) return; // Already set up
+
+  const enter = () => {
+    container.classList.add('tiktik-expanded');
+    applyDeckLayout(container, true);
+  };
+  const leave = () => {
+    container.classList.remove('tiktik-expanded');
+    applyDeckLayout(container, false);
+  };
+
+  container.addEventListener('mouseenter', enter);
+  container.addEventListener('mouseleave', leave);
+  deckListeners.set(position, { enter, leave });
+}
+
+/**
+ * Clean up deck hover listeners for a position.
+ */
+function cleanupDeckHover(position: ToastPosition): void {
+  const listeners = deckListeners.get(position);
+  if (!listeners) return;
+
+  const container = document.querySelector(`.tiktik-${position}`);
+  if (container) {
+    container.removeEventListener('mouseenter', listeners.enter);
+    container.removeEventListener('mouseleave', listeners.leave);
+  }
+  deckListeners.delete(position);
 }
 
 /**
@@ -141,15 +190,22 @@ export function dismiss(id: string): void {
   }
 
   const position = instance.options.position;
+  const config = getConfig();
 
   animateOut(instance.element, instance.options.animationSpeed).then(() => {
     activeToasts.delete(id);
     cleanupContainer(position);
 
-    // Reflow remaining toasts in same container
+    // Re-apply stacking layout
     const container = document.querySelector(`.tiktik-${position}`);
     if (container) {
-      animateReflow(container as HTMLElement);
+      if (config.stackStyle === 'deck') {
+        applyDeckLayout(container as HTMLElement, container.classList.contains('tiktik-expanded'));
+      } else {
+        animateReflow(container as HTMLElement);
+      }
+    } else {
+      cleanupDeckHover(position);
     }
   });
 }

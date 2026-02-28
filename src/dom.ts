@@ -1,6 +1,7 @@
 /**
  * Tiktik - DOM Module
  * Creates and manages toast DOM elements and containers.
+ * Uses context-aware ARIA roles for WCAG compliance.
  */
 
 import type { ToastOptions, ToastInstance, ToastPosition } from './types';
@@ -19,7 +20,7 @@ export function getContainer(position: ToastPosition): HTMLElement {
 
   const container = document.createElement('div');
   container.className = `tiktik-container tiktik-${position}`;
-  container.setAttribute('aria-live', 'assertive');
+  container.setAttribute('aria-live', 'polite');
   container.setAttribute('aria-relevant', 'additions removals');
   container.setAttribute('role', 'region');
   container.setAttribute('aria-label', 'Notifications');
@@ -30,6 +31,8 @@ export function getContainer(position: ToastPosition): HTMLElement {
 
 /**
  * Build the full toast DOM element.
+ * Uses context-aware ARIA: role="alert" for urgent types (error, warning),
+ * role="status" for informational types (success, info, default, loading).
  */
 export function createToastElement(
   options: ToastInstance['options'],
@@ -37,7 +40,10 @@ export function createToastElement(
 ): HTMLElement {
   const toast = document.createElement('div');
   toast.className = `tiktik-toast tiktik-toast--${options.type}`;
-  toast.setAttribute('role', 'alert');
+
+  // Context-aware ARIA roles
+  const isUrgent = options.type === 'error' || options.type === 'warning';
+  toast.setAttribute('role', isUrgent ? 'alert' : 'status');
   toast.setAttribute('aria-atomic', 'true');
   toast.setAttribute('tabindex', '0');
 
@@ -52,6 +58,7 @@ export function createToastElement(
   // --- Icon ---
   const iconWrapper = document.createElement('div');
   iconWrapper.className = 'tiktik-icon';
+  iconWrapper.setAttribute('aria-hidden', 'true');
   iconWrapper.innerHTML = options.icon || getIcon(options.type);
   toast.appendChild(iconWrapper);
 
@@ -72,6 +79,7 @@ export function createToastElement(
   if (options.expandedContent) {
     const expanded = document.createElement('div');
     expanded.className = 'tiktik-expanded';
+    expanded.setAttribute('aria-hidden', 'true');
     expanded.innerHTML = options.expandedContent;
     content.appendChild(expanded);
   }
@@ -80,6 +88,8 @@ export function createToastElement(
   if (options.buttons && options.buttons.length > 0) {
     const actions = document.createElement('div');
     actions.className = 'tiktik-actions';
+    actions.setAttribute('role', 'group');
+    actions.setAttribute('aria-label', 'Notification actions');
     options.buttons.forEach((btn) => {
       const button = document.createElement('button');
       button.className = `tiktik-action-btn ${btn.className || ''}`;
@@ -110,6 +120,9 @@ export function createToastElement(
   if (options.progress && options.duration > 0) {
     const progressTrack = document.createElement('div');
     progressTrack.className = 'tiktik-progress-track';
+    progressTrack.setAttribute('role', 'progressbar');
+    progressTrack.setAttribute('aria-valuemin', '0');
+    progressTrack.setAttribute('aria-valuemax', '100');
     const progressBar = document.createElement('div');
     progressBar.className = `tiktik-progress-bar tiktik-progress--${options.type}`;
     progressTrack.appendChild(progressBar);
