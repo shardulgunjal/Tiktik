@@ -1,5 +1,5 @@
 {
-  "name": "tiktik",
+  "name": "tiktiktoast",
   "version": "0.1.0",
   "type": "module",
   "description": "Dynamic Island-style notification/toast library for web applications. Zero dependencies. Vanilla JS + TypeScript + WAAPI.",
@@ -10,14 +10,20 @@
   "exports": {
     ".": {
       "import": "./dist/tiktik.es.js",
-      "require": "./dist/tiktik.cjs"
+      "require": "./dist/tiktik.cjs",
+      "types": "./dist/types.d.ts"
     }
   },
+  "files": [
+    "dist"
+  ],
   "sideEffects": false,
   "scripts": {
-    "build": "vite build",
     "dev": "vite",
-    "typecheck": "tsc --noEmit"
+    "build": "vite build",
+    "build:lib": "vite build --mode lib",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build:lib"
   },
   "keywords": [
     "toast",
@@ -32,7 +38,19 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@tailwindcss/vite": "^4.2.1",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.4",
+    "framer-motion": "^12.34.3",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-router-dom": "^7.13.1",
+    "tailwindcss": "^4.2.1",
     "typescript": "^5.0.0",
     "vite": "^5.0.0"
+  },
+  "dependencies": {
+    "tiktiktoast": "^0.1.0"
   }
 }

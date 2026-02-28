@@ -1,39 +1,96 @@
-# Tiktik 🔔
+<p align="center">
+  <h1 align="center">tiktiktoast 🔔</h1>
+  <p align="center">
+    <strong>Dynamic Island–style toast notifications for the web.</strong><br/>
+    Zero dependencies · SSR-safe · Accessible · ~7KB gzipped
+  </p>
+</p>
 
-Dynamic Island–style notification/toast library for web applications.
-Zero external dependencies. Vanilla JS + TypeScript + WAAPI only.
+<p align="center">
+  <a href="https://www.npmjs.com/package/tiktiktoast"><img src="https://img.shields.io/npm/v/tiktiktoast?style=flat-square&color=6366f1" alt="npm version"></a>
+  <a href="https://www.npmjs.com/package/tiktiktoast"><img src="https://img.shields.io/npm/dm/tiktiktoast?style=flat-square&color=22c55e" alt="npm downloads"></a>
+  <a href="https://bundlephobia.com/package/tiktiktoast"><img src="https://img.shields.io/bundlephobia/minzip/tiktiktoast?style=flat-square&color=3b82f6&label=gzip" alt="bundle size"></a>
+  <a href="https://github.com/your-username/tiktiktoast/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/tiktiktoast?style=flat-square&color=f59e0b" alt="license"></a>
+</p>
 
-## Install
+<p align="center">
+  <a href="https://tiktiktoast.vercel.app">Live Demo</a> ·
+  <a href="https://tiktiktoast.vercel.app/docs">Documentation</a> ·
+  <a href="https://tiktiktoast.vercel.app/docs/api">API Reference</a>
+</p>
+
+---
+
+## ✨ Features
+
+- **🏝️ Dynamic Island morphing** — Pill-to-card transitions with spring easing
+- **📚 Stacking & queue** — Max 5 visible, rest queued with animated reflow
+- **🔄 Promise tracking** — `loading → success/error` transitions in one API call
+- **🔁 Deduplication** — Same `id` updates toast in place with morph animation
+- **📊 Progress bar** — 2px WAAPI-animated countdown bar
+- **👆 Swipe to dismiss** — Rubber-band gesture (lazy-loaded module)
+- **🌐 RTL support** — Auto-detected, flips icons, text, and swipe direction
+- **♿ Accessible** — `role="alert"`, `aria-live`, keyboard nav, `Alt+T` focus
+- **🖥️ SSR safe** — No `window`/`document` access at import time (Next.js, Nuxt, etc.)
+- **🎯 Zero dependencies** — Pure vanilla JS + TypeScript + Web Animations API
+- **🎬 Reduced motion** — Respects `prefers-reduced-motion: reduce`
+- **🎨 Customizable** — CSS variables, custom icons, custom renderers
+
+---
+
+## 📦 Installation
 
 ```bash
-npm install tiktik
+npm install tiktiktoast
 ```
 
-Or via CDN:
+```bash
+yarn add tiktiktoast
+```
+
+```bash
+pnpm add tiktiktoast
+```
+
+### CDN (No bundler)
 
 ```html
-<script src="https://unpkg.com/tiktik/dist/tiktik.umd.js"></script>
+<script src="https://unpkg.com/tiktiktoast/dist/tiktik.umd.js"></script>
 <script>
   Tiktik.success('Hello from CDN!')
 </script>
 ```
 
-## Quick Start
+---
+
+## 🚀 Quick Start
 
 ```typescript
-import { Tiktik } from 'tiktik'
+import { Tiktik } from 'tiktiktoast'
 
+// One line. That's it.
 Tiktik.success('Changes saved!')
 Tiktik.error('Something went wrong.')
 Tiktik.warning('Disk space running low.')
 Tiktik.info('New update available.')
 ```
 
-## API Reference
+---
+
+## 📖 API
+
+### Type Shortcuts
+
+```typescript
+Tiktik.success(message, options?)  // ✓ green accent
+Tiktik.error(message, options?)    // ✕ red accent
+Tiktik.info(message, options?)     // ℹ blue accent
+Tiktik.warning(message, options?)  // ⚠ orange accent
+```
 
 ### `Tiktik.showToast(options)`
 
-Show a toast with full control over options.
+Full control over every option:
 
 ```typescript
 Tiktik.showToast({
@@ -49,31 +106,20 @@ Tiktik.showToast({
 })
 ```
 
-### Type Shortcuts
-
-```typescript
-Tiktik.success(message, options?)  // type: 'success'
-Tiktik.error(message, options?)    // type: 'error'
-Tiktik.info(message, options?)     // type: 'info'
-Tiktik.warning(message, options?)  // type: 'warning'
-```
-
 ### `Tiktik.promise(promise, options)`
 
-Track a promise with loading → success/error transitions.
+Track async operations with automatic state transitions:
 
 ```typescript
 Tiktik.promise(fetch('/api/save'), {
   loading: 'Saving...',
   success: (data) => `Saved! ${data.name}`,
   error:   (err) => `Failed: ${err.message}`,
-  duration: 3000,  // auto-dismiss after resolve/reject
+  duration: 3000,
 })
 ```
 
 ### `Tiktik.dismiss(id?)`
-
-Dismiss a specific toast by ID, or all toasts if no ID is given.
 
 ```typescript
 const id = Tiktik.success('Dismissible')
@@ -83,7 +129,7 @@ Tiktik.dismiss()     // dismiss all
 
 ### `Tiktik.configure(defaults)`
 
-Set global defaults. SSR-safe (does not access DOM).
+Set global defaults. SSR-safe (no DOM access).
 
 ```typescript
 Tiktik.configure({
@@ -94,35 +140,44 @@ Tiktik.configure({
 })
 ```
 
-## Options Reference
+### `Tiktik.onStackChange(listener)`
 
-| Option     | Type                           | Default   | Description                              |
-|------------|-------------------------------|-----------|------------------------------------------|
-| `message`  | `string`                       | required  | Toast text content                       |
-| `type`     | `ToastType`                    | `'info'`  | Visual type and accent color             |
-| `duration` | `number`                       | `3000`    | Auto-dismiss in ms (`Infinity` = manual) |
-| `position` | `'top' \| 'bottom'`           | `'top'`   | Container position                       |
-| `icon`     | `string \| SVGElement`         | —         | Custom icon (SVG string or element)      |
-| `progress` | `boolean`                      | `false`   | Show countdown progress bar              |
-| `id`       | `string`                       | auto      | Deduplication key                        |
-| `onClick`  | `() => void`                   | —         | Click handler                            |
-| `onDismiss`| `() => void`                   | —         | Post-dismiss callback                    |
+```typescript
+Tiktik.onStackChange((visible, queued) => {
+  console.log(`Visible: ${visible}, Queued: ${queued}`)
+})
+```
 
-## Features
+---
 
-- **Dynamic Island morphing** — Pill-to-card transitions with spring easing
-- **Deduplication** — Same `id` updates toast in place with morph animation
-- **Stacking** — Max 5 visible, rest queued with animated reflow
-- **Progress bar** — 2px WAAPI-animated countdown bar
-- **Swipe to dismiss** — Rubber-band gesture with lazy-loaded module
-- **Promise tracking** — Spinner → checkmark/× path animation
-- **RTL support** — Auto-detected, flips icons, text, and swipe direction
-- **Accessibility** — `role="alert"`, `aria-live`, keyboard navigation, `Alt+T` focus
-- **SSR safe** — No `window` access at import time, works in Next.js/Nuxt SSR
-- **Zero dependencies** — Vanilla JS + TypeScript + Web Animations API
-- **Reduced motion** — Respects `prefers-reduced-motion: reduce`
+## ⚙️ Options Reference
 
-## CSS Customization
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `message` | `string` | *required* | Toast text content |
+| `type` | `'success' \| 'error' \| 'info' \| 'warning'` | `'info'` | Visual type and accent color |
+| `duration` | `number` | `3000` | Auto-dismiss in ms (`Infinity` = manual) |
+| `position` | `'top' \| 'bottom'` | `'top'` | Container position |
+| `icon` | `string \| SVGElement` | — | Custom icon (SVG string or element) |
+| `progress` | `boolean` | `false` | Show countdown progress bar |
+| `id` | `string` | auto | Deduplication key |
+| `onClick` | `() => void` | — | Click handler |
+| `onDismiss` | `() => void` | — | Post-dismiss callback |
+
+## 🔧 Global Configuration
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `type` | `ToastType` | `'info'` | Default toast type |
+| `duration` | `number` | `3000` | Default duration (ms) |
+| `position` | `ToastPosition` | `'top'` | Default position |
+| `progress` | `boolean` | `false` | Show progress bar by default |
+| `renderer` | `CustomRenderer` | — | Custom renderer function |
+| `audio` | `boolean` | `false` | Enable audio cues |
+
+---
+
+## 🎨 CSS Customization
 
 Override CSS custom properties on `:root`:
 
@@ -139,18 +194,36 @@ Override CSS custom properties on `:root`:
 }
 ```
 
-## Bundle Size
+---
 
-| Chunk      | Size (gzip) |
-|------------|-------------|
-| Base       | ~6 KB       |
-| Gestures   | ~0.75 KB    |
-| Promise    | ~0.5 KB     |
+## 📏 Bundle Size
 
-## Browser Support
+| Chunk | Size (gzip) |
+|---|---|
+| **Base** | ~6 KB |
+| Gestures (lazy) | ~0.75 KB |
+| Promise (lazy) | ~0.5 KB |
 
-All modern browsers with Web Animations API support (Chrome 36+, Firefox 48+, Safari 13.1+, Edge 79+).
+> The gesture and promise modules are **lazy-loaded** on first use. Your initial bundle stays lean.
 
-## License
+---
 
-MIT
+## 🌐 Browser Support
+
+All modern browsers with [Web Animations API](https://caniuse.com/web-animation) support:
+
+| Chrome | Firefox | Safari | Edge |
+|---|---|---|---|
+| 36+ | 48+ | 13.1+ | 79+ |
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request.
+
+---
+
+## 📄 License
+
+[MIT](LICENSE) — Free for personal and commercial use.
