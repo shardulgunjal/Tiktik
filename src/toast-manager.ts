@@ -2,6 +2,9 @@
  * Tiktik - Toast Manager
  * Manages the lifecycle of all active toast notifications.
  * Integrates swipe-to-dismiss, deck stacking, and accessibility features.
+ *
+ * Swipe and focus modules are lazy-loaded on demand to keep the core
+ * bundle lightweight. They are cached after first load.
  */
 
 import type { ToastOptions, ToastInstance, ToastPosition } from './types';
@@ -9,7 +12,27 @@ import { getConfig } from './config';
 import { getContainer, createToastElement, cleanupContainer } from './dom';
 import { getIcon } from './icons';
 import { animateIn, animateOut, animateProgress, animateReflow, animateContentChange, applyDeckLayout } from './animations';
-import { attachSwipe } from './swipe';
+
+// --- Lazy module caches ---
+type SwipeModule = typeof import('./swipe');
+type FocusModule = typeof import('./focus');
+
+let swipeModuleCache: SwipeModule | null = null;
+let focusModuleCache: FocusModule | null = null;
+
+async function getSwipeModule(): Promise<SwipeModule> {
+  if (!swipeModuleCache) {
+    swipeModuleCache = await import('./swipe');
+  }
+  return swipeModuleCache;
+}
+
+async function getFocusModule(): Promise<FocusModule> {
+  if (!focusModuleCache) {
+    focusModuleCache = await import('./focus');
+  }
+  return focusModuleCache;
+}
 
 /** Active toasts indexed by ID */
 const activeToasts = new Map<string, ToastInstance>();
@@ -76,6 +99,12 @@ export function show(userOptions: ToastOptions): string {
     container.appendChild(element);
   }
 
+  // Lazy-load focus module (idempotent — only registers shortcut once)
+  getFocusModule().then((mod) => {
+    mod.registerFocusShortcut();
+    mod.autoFocusIfActionable(element);
+  });
+
   // Animate in
   animateIn(element, options.animationSpeed);
 
@@ -103,10 +132,12 @@ export function show(userOptions: ToastOptions): string {
     instance.timer = setTimeout(() => dismiss(id), options.duration);
   }
 
-  // --- Swipe-to-dismiss ---
+  // --- Lazy-load swipe module ---
   const enableSwipe = options.swipeToDismiss ?? config.swipeToDismiss;
   if (enableSwipe) {
-    attachSwipe(element, () => dismiss(id));
+    getSwipeModule().then((mod) => {
+      mod.attachSwipe(element, () => dismiss(id));
+    });
   }
 
   // --- Pause on hover ---

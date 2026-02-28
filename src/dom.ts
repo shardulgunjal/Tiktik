@@ -29,8 +29,14 @@ export function getContainer(position: ToastPosition): HTMLElement {
   return container;
 }
 
+import { trapFocus } from './focus';
+
 /**
  * Build the full toast DOM element.
+ * Supports headless mode: if options.render is provided, uses the custom
+ * renderer instead of the default pill UI. Tiktik still manages lifecycle,
+ * timers, swipe, stacking, and animations.
+ *
  * Uses context-aware ARIA: role="alert" for urgent types (error, warning),
  * role="status" for informational types (success, info, default, loading).
  */
@@ -38,6 +44,27 @@ export function createToastElement(
   options: ToastInstance['options'],
   onDismiss: () => void
 ): HTMLElement {
+  // --- Headless mode: custom renderer ---
+  if (options.render) {
+    const custom = options.render(options, onDismiss);
+    // Ensure minimum accessibility on custom elements
+    custom.classList.add('tiktik-toast', `tiktik-toast--${options.type}`);
+    if (!custom.getAttribute('role')) {
+      const isUrgent = options.type === 'error' || options.type === 'warning';
+      custom.setAttribute('role', isUrgent ? 'alert' : 'status');
+    }
+    if (!custom.getAttribute('tabindex')) {
+      custom.setAttribute('tabindex', '0');
+    }
+    custom.setAttribute('aria-atomic', 'true');
+    // Keyboard dismiss
+    custom.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') onDismiss();
+    });
+    return custom;
+  }
+
+  // --- Default pill UI ---
   const toast = document.createElement('div');
   toast.className = `tiktik-toast tiktik-toast--${options.type}`;
 
@@ -101,6 +128,9 @@ export function createToastElement(
       actions.appendChild(button);
     });
     content.appendChild(actions);
+
+    // Focus trap: keep Tab cycling within the toast when it has buttons
+    trapFocus(toast);
   }
 
   toast.appendChild(content);

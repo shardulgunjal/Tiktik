@@ -16,6 +16,7 @@ const defaultConfig: TiktikConfig = {
   theme: 'auto',
   stackStyle: 'deck',
   swipeToDismiss: true,
+  focusShortcut: 'Alt+T',
 };
 
 /** Active configuration (clone of defaults) */

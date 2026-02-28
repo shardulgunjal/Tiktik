@@ -54,6 +54,15 @@ export interface ToastOptions {
   sound?: boolean;
   /** Enable swipe-to-dismiss gesture (default: true) */
   swipeToDismiss?: boolean;
+  /**
+   * Headless mode: provide a custom render function that returns the toast's
+   * root HTMLElement. Tiktik will manage lifecycle, timers, swipe, stacking,
+   * and animations — you control the DOM structure entirely.
+   *
+   * The function receives the resolved options and a dismiss callback.
+   * If omitted, Tiktik's default Dynamic Island pill UI is used.
+   */
+  render?: (options: ToastOptions, dismiss: () => void) => HTMLElement;
 }
 
 /** Promise toast messages */
@@ -76,6 +85,12 @@ export interface TiktikConfig {
   stackStyle: 'vertical' | 'deck';
   /** Enable swipe-to-dismiss globally */
   swipeToDismiss: boolean;
+  /**
+   * Keyboard shortcut to jump focus to the toast region.
+   * Format: modifier keys + key, e.g. 'Alt+T', 'Control+Shift+N'.
+   * Set to '' to disable. Default: 'Alt+T'.
+   */
+  focusShortcut: string;
 }
 
 /** Internal toast state */

@@ -333,6 +333,24 @@
       </div>
     </section>
 
+    <!-- Headless Mode -->
+    <section class="card">
+      <h2>🧩 Headless Mode</h2>
+      <p>Provide your own DOM via a custom render function. Tiktik handles lifecycle, timers, swipe, and animations.</p>
+      <div class="btn-row">
+        <button class="btn btn-custom" id="btn-headless" onclick="headlessDemo()">Custom Render</button>
+      </div>
+    </section>
+
+    <!-- Focus Management -->
+    <section class="card">
+      <h2>⌨️ Focus Management</h2>
+      <p>Press <kbd style="background:#334155;padding:2px 8px;border-radius:6px;font-size:12px">Alt+T</kbd> to jump focus to the newest toast. Toasts with action buttons auto-focus and trap Tab.</p>
+      <div class="btn-row">
+        <button class="btn btn-info" id="btn-focus-test" onclick="actionDemo()">Toast with Buttons (auto-focus)</button>
+      </div>
+    </section>
+
     <!-- Code Example -->
     <section class="card card-wide">
       <h2>💻 Usage</h2>
@@ -459,6 +477,23 @@
         Tiktik.default.dismiss(id);
         Tiktik.default.success('Request completed!');
       }, 4000);
+    }
+
+    function headlessDemo() {
+      Tiktik.default.showToast({
+        message: 'Custom rendered toast',
+        type: 'info',
+        duration: 8000,
+        render: function(opts, dismiss) {
+          var el = document.createElement('div');
+          el.style.cssText = 'display:flex;align-items:center;gap:12px;padding:16px 20px;background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:16px;color:#e0e7ff;font-family:Inter,sans-serif;font-size:14px;box-shadow:0 8px 32px rgba(0,0,0,0.3);border:1px solid rgba(129,140,248,0.2);min-width:280px;';
+          el.innerHTML = '<div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#818cf8,#6366f1);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🧩</div>'
+            + '<div style="flex:1"><strong style="display:block;margin-bottom:2px">Headless Mode</strong><span style="opacity:0.7;font-size:12px">You built this DOM — Tiktik runs the show</span></div>'
+            + '<button onclick="event.stopPropagation()" style="background:rgba(255,255,255,0.1);border:none;color:#e0e7ff;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-family:Inter,sans-serif" aria-label="Dismiss">✕</button>';
+          el.querySelector('button').addEventListener('click', dismiss);
+          return el;
+        }
+      });
     }
 
     function swipeDemo() {

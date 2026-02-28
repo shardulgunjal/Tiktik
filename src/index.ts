@@ -11,8 +11,8 @@
 
 import './tiktik.css';
 import type { ToastOptions, TiktikConfig, PromiseOptions } from './types';
-import { configure as setConfig, getConfig, resetConfig } from './config';
-import { show, dismiss, dismissAll, update } from './toast-manager';
+import { configure as setConfig, resetConfig } from './config';
+import { show, dismiss, dismissAll } from './toast-manager';
 
 /**
  * Configure global defaults.
@@ -66,46 +66,15 @@ function loading(message: string, options?: Partial<ToastOptions>): string {
 
 /**
  * Promise-based toast: shows loading, then transitions to success or error.
+ * The promise module is lazy-loaded on first call.
  */
 async function promise<T>(
   promiseValue: Promise<T>,
   options: PromiseOptions<T>,
   toastOptions?: Partial<ToastOptions>
 ): Promise<T> {
-  const id = show({
-    ...toastOptions,
-    message: options.loading,
-    type: 'loading',
-    duration: 0,
-    progress: false,
-  });
-
-  try {
-    const result = await promiseValue;
-    const successMsg = typeof options.success === 'function'
-      ? options.success(result)
-      : options.success;
-
-    update(id, {
-      message: successMsg,
-      type: 'success',
-      duration: toastOptions?.duration ?? getConfig().duration,
-    });
-
-    return result;
-  } catch (err) {
-    const errorMsg = typeof options.error === 'function'
-      ? options.error(err)
-      : options.error;
-
-    update(id, {
-      message: errorMsg,
-      type: 'error',
-      duration: toastOptions?.duration ?? getConfig().duration,
-    });
-
-    throw err;
-  }
+  const { promiseToast } = await import('./promise');
+  return promiseToast(promiseValue, options, toastOptions);
 }
 
 /** The public Tiktik API object */
