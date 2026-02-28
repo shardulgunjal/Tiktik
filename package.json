@@ -1,6 +1,6 @@
 {
   "name": "tiktiktoast",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "Dynamic Island-style notification/toast library for web applications. Zero dependencies. Vanilla JS + TypeScript + WAAPI.",
   "main": "./dist/tiktik.cjs",
