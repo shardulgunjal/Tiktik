@@ -36,13 +36,9 @@ export default {
       name: 'Tiktik',
       sourcemap: true,
       exports: 'named',
-      globals: {
-        gsap: 'gsap',
-      },
       inlineDynamicImports: true,
     },
   ],
-  external: ['gsap'],
   plugins: [
     postcss({
       inject: true,

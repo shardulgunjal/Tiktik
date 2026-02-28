@@ -51,6 +51,7 @@ export function attachSwipe(
     state.isHorizontal = null;
 
     el.classList.add('tiktik-swiping');
+    el.style.transition = 'none'; // Disable animations during direct manipulation
     el.setPointerCapture(e.pointerId);
   }
 
@@ -79,7 +80,7 @@ export function attachSwipe(
     const progress = Math.min(Math.abs(deltaX) / SWIPE_THRESHOLD, 1);
     const opacity = 1 - progress * (1 - MIN_OPACITY);
 
-    el.style.transform = `translateX(${deltaX}px)`;
+    el.style.setProperty('--tiktik-swipe-x', `${deltaX}px`);
     el.style.opacity = String(opacity);
   }
 
@@ -127,56 +128,23 @@ function animateSwipeOut(
   direction: number,
   onDismiss: () => void
 ): void {
-  const gsap = getGSAP();
-
-  if (gsap) {
-    gsap.to(el, {
-      x: direction * window.innerWidth,
-      opacity: 0,
-      duration: 0.3,
-      ease: 'power2.in',
-      onComplete: onDismiss,
-    });
-  } else {
-    el.style.transition = 'transform 0.3s ease-in, opacity 0.3s ease-in';
-    el.style.transform = `translateX(${direction * window.innerWidth}px)`;
-    el.style.opacity = '0';
-    setTimeout(onDismiss, 300);
-  }
+  el.style.transition = 'transform 0.3s ease-in, opacity 0.3s ease-in';
+  el.style.setProperty('--tiktik-swipe-x', `${direction * window.innerWidth}px`);
+  el.style.opacity = '0';
+  setTimeout(onDismiss, 300);
 }
 
 /**
  * Spring the toast back to its original position after an aborted swipe.
  */
 function animateSpringBack(el: HTMLElement): void {
-  const gsap = getGSAP();
-
-  if (gsap) {
-    gsap.to(el, {
-      x: 0,
-      opacity: 1,
-      duration: 0.5,
-      ease: 'elastic.out(1, 0.4)',
-      clearProps: 'transform,opacity',
-    });
-  } else {
-    el.style.transition = 'transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease';
-    el.style.transform = 'translateX(0)';
-    el.style.opacity = '1';
-    setTimeout(() => {
-      el.style.transition = '';
-      el.style.transform = '';
-      el.style.opacity = '';
-    }, 400);
-  }
-}
-
-/**
- * Try to get GSAP from the global scope.
- */
-function getGSAP(): any {
-  if (typeof window !== 'undefined' && (window as any).gsap) {
-    return (window as any).gsap;
-  }
-  return null;
+  el.style.transition = 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease';
+  el.style.setProperty('--tiktik-swipe-x', '0px');
+  el.style.opacity = '1';
+  
+  // Clean up inline styles after animation
+  setTimeout(() => {
+    // Restore the deck stacking transition rules
+    el.style.transition = 'transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease, box-shadow 0.2s ease, translate 0.2s ease';
+  }, 500);
 }

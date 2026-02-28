@@ -159,16 +159,25 @@
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--tiktik-border);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  will-change: transform, opacity;
   font-size: 14px;
   line-height: 1.4;
+
+  --tiktik-swipe-x: 0px;
+  --tiktik-deck-y: 0px;
+  --tiktik-deck-scale: 1;
+  --tiktik-hover-y: 0px;
+  
+  transform: translate3d(var(--tiktik-swipe-x), calc(var(--tiktik-deck-y) + var(--tiktik-hover-y)), 0) scale(var(--tiktik-deck-scale));
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease, box-shadow 0.2s ease;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Hover lift effect */
+/* Hover lift effect - updates the custom property rather than overwriting transform */
 .tiktik-toast:hover,
 .tiktik-toast.tiktik-hover {
-  transform: scale(1.02);
+  --tiktik-hover-y: -3px;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18), 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
@@ -249,7 +258,6 @@
 .tiktik-message {
   font-weight: 500;
   word-wrap: break-word;
-  white-space: nowrap;
 }
 
 /* ==============================
@@ -258,6 +266,7 @@
 .tiktik-expanded {
   max-height: 0;
   overflow: hidden;
+  overflow-x: hidden;
   opacity: 0;
   margin-top: 0;
   font-size: 13px;

@@ -1,38 +1,11 @@
 /**
  * Tiktik - Animations Module
- * GSAP-powered animations with CSS fallback.
+ * Pure CSS + WAAPI animations (Zero GSAP dependency).
  * Includes reduced-motion detection for WCAG compliance.
  */
 
-/** Reference to GSAP, if available */
-let gsapLib: any = null;
-
 /** Cached reduced-motion preference */
 let reducedMotionQuery: MediaQueryList | null = null;
-
-/**
- * Try to detect and cache GSAP from the global scope or module import.
- */
-function detectGSAP(): any {
-  if (gsapLib) return gsapLib;
-  if (typeof window !== 'undefined' && (window as any).gsap) {
-    gsapLib = (window as any).gsap;
-    return gsapLib;
-  }
-  try {
-    gsapLib = require('gsap');
-    return gsapLib;
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Check if GSAP is available.
- */
-export function hasGSAP(): boolean {
-  return !!detectGSAP();
-}
 
 /**
  * Check if the user prefers reduced motion (WCAG).
@@ -46,10 +19,8 @@ export function prefersReducedMotion(): boolean {
 }
 
 /**
- * Animate a toast entering the screen.
+ * Animate a toast entering the screen using CSS animation.
  * Respects prefers-reduced-motion: uses simple opacity fade if active.
- * GSAP: elastic scale + fade.
- * CSS fallback: applies animation class.
  */
 export function animateIn(el: HTMLElement, speed: number = 1): Promise<void> {
   // Reduced motion: instant show with simple fade
@@ -63,41 +34,35 @@ export function animateIn(el: HTMLElement, speed: number = 1): Promise<void> {
     });
   }
 
-  const gsap = detectGSAP();
-
-  if (gsap) {
-    return new Promise((resolve) => {
-      gsap.set(el, {
-        opacity: 0,
-        scale: 0.3,
-        y: -20,
-      });
-
-      gsap.to(el, {
-        opacity: 1,
-        scale: 1,
-        y: 0,
-        duration: 0.6 / speed,
-        ease: 'elastic.out(1, 0.5)',
-        onComplete: resolve,
-      });
-    });
-  }
-
-  // CSS fallback
+  // Pure CSS animation
   return new Promise((resolve) => {
     el.classList.add('tiktik-animate-in');
+    
+    // speed multiplier for animation-duration
+    if (speed !== 1) {
+      el.style.animationDuration = `${0.5 / speed}s`;
+    }
+
     const handleEnd = () => {
       el.removeEventListener('animationend', handleEnd);
+      if (speed !== 1) el.style.animationDuration = '';
+      el.classList.remove('tiktik-animate-in'); // Ensure forwards animation releases control
       resolve();
     };
     el.addEventListener('animationend', handleEnd);
-    setTimeout(resolve, 600 / speed);
+    
+    // Fallback timer if event fails to fire
+    setTimeout(() => {
+      el.removeEventListener('animationend', handleEnd);
+      if (speed !== 1) el.style.animationDuration = '';
+      el.classList.remove('tiktik-animate-in');
+      resolve();
+    }, (550 / speed) + 50);
   });
 }
 
 /**
- * Animate a toast leaving the screen.
+ * Animate a toast leaving the screen using CSS animation.
  * Respects prefers-reduced-motion.
  */
 export function animateOut(el: HTMLElement, speed: number = 1): Promise<void> {
@@ -112,72 +77,57 @@ export function animateOut(el: HTMLElement, speed: number = 1): Promise<void> {
     });
   }
 
-  const gsap = detectGSAP();
-
-  if (gsap) {
-    return new Promise((resolve) => {
-      gsap.to(el, {
-        opacity: 0,
-        scale: 0.5,
-        y: -10,
-        height: 0,
-        marginBottom: 0,
-        paddingTop: 0,
-        paddingBottom: 0,
-        duration: 0.35 / speed,
-        ease: 'power2.in',
-        onComplete: () => {
-          el.remove();
-          resolve();
-        },
-      });
-    });
-  }
-
-  // CSS fallback
+  // Pure CSS animation
   return new Promise((resolve) => {
     el.classList.add('tiktik-animate-out');
+    
+    if (speed !== 1) {
+      el.style.animationDuration = `${0.35 / speed}s`;
+    }
+
     const handleEnd = () => {
       el.removeEventListener('animationend', handleEnd);
       el.remove();
       resolve();
     };
     el.addEventListener('animationend', handleEnd);
+    
     setTimeout(() => {
+      el.removeEventListener('animationend', handleEnd);
       el.remove();
       resolve();
-    }, 400 / speed);
+    }, (400 / speed) + 50);
   });
 }
 
 /**
  * Animate the progress bar from 100% to 0% width.
+ * Uses WAAPI (Web Animations API) to allow pausing/resuming.
  */
 export function animateProgress(
   bar: HTMLElement,
   duration: number,
   speed: number = 1
 ): { pause: () => void; resume: () => void; kill: () => void } {
-  const gsap = detectGSAP();
-  const actualDuration = duration / 1000 / speed;
+  const actualDuration = duration / speed;
 
-  if (gsap && !prefersReducedMotion()) {
-    const tween = gsap.fromTo(
-      bar,
-      { width: '100%' },
-      { width: '0%', duration: actualDuration, ease: 'none' }
+  // Use WAAPI if available
+  if (typeof bar.animate === 'function' && !prefersReducedMotion()) {
+    const animation = bar.animate(
+      [{ width: '100%' }, { width: '0%' }],
+      { duration: actualDuration, easing: 'linear', fill: 'forwards' }
     );
     return {
-      pause: () => tween.pause(),
-      resume: () => tween.resume(),
-      kill: () => tween.kill(),
+      pause: () => animation.pause(),
+      resume: () => animation.play(),
+      kill: () => animation.cancel(),
     };
   }
 
-  // CSS fallback
+  // Fallback (older browsers or reduced motion)
   bar.style.width = '100%';
-  bar.style.transition = `width ${actualDuration}s linear`;
-  bar.getBoundingClientRect();
+  bar.style.transition = `width ${actualDuration / 1000}s linear`;
+  bar.getBoundingClientRect(); // force reflow
   bar.style.width = '0%';
 
   return {
@@ -187,7 +137,7 @@ export function animateProgress(
       bar.style.width = computed;
     },
     resume: () => {
-      bar.style.transition = `width ${actualDuration}s linear`;
+      bar.style.transition = `width ${actualDuration / 1000}s linear`;
       bar.style.width = '0%';
     },
     kill: () => {
@@ -197,7 +147,7 @@ export function animateProgress(
 }
 
 /**
- * Apply Sonner-style deck layout to stacked toasts.
+ * Apply Sonner-style deck layout to stacked toasts using pure CSS transitions.
  * Newest toast is fully visible; older ones shrink and peek behind it.
  * On hover, expands to full vertical list.
  */
@@ -209,25 +159,24 @@ export function applyDeckLayout(
   const count = children.length;
   if (count === 0) return;
 
-  const gsap = detectGSAP();
-  const useGsap = gsap && !prefersReducedMotion();
-
-  // The "front" toast is the last child (newest) in top containers,
-  // or the first child in bottom containers (due to column-reverse).
+  const preferNoMotion = prefersReducedMotion();
   const isBottom = container.className.includes('bottom');
+  const transition = preferNoMotion 
+    ? 'none' 
+    : 'transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease, box-shadow 0.2s ease, translate 0.2s ease';
 
   children.forEach((child, i) => {
     // Determine distance from the "front" (newest) toast
     const distFromFront = isBottom ? i : (count - 1 - i);
 
+    child.style.transition = transition;
+
     if (isExpanded || count <= 1) {
       // Expanded: normal vertical layout
-      const props = { transform: 'scale(1) translateY(0)', opacity: '1', zIndex: '' };
-      if (useGsap) {
-        gsap.to(child, { scale: 1, y: 0, opacity: 1, zIndex: count - distFromFront, duration: 0.3, ease: 'power2.out' });
-      } else {
-        Object.assign(child.style, props);
-      }
+      child.style.setProperty('--tiktik-deck-scale', '1');
+      child.style.setProperty('--tiktik-deck-y', '0px');
+      child.style.opacity = '1';
+      child.style.zIndex = '';
     } else {
       // Deck: scale down and offset older toasts
       const scale = Math.max(1 - distFromFront * 0.05, 0.85);
@@ -235,39 +184,29 @@ export function applyDeckLayout(
       const opacity = Math.max(1 - distFromFront * 0.15, 0.4);
       const zIndex = count - distFromFront;
 
-      if (useGsap) {
-        gsap.to(child, {
-          scale,
-          y: yOffset,
-          opacity: distFromFront === 0 ? 1 : opacity,
-          zIndex,
-          duration: 0.35,
-          ease: 'power2.out',
-        });
-      } else {
-        child.style.transform = `scale(${scale}) translateY(${yOffset}px)`;
-        child.style.opacity = distFromFront === 0 ? '1' : String(opacity);
-        child.style.zIndex = String(zIndex);
-      }
+      child.style.setProperty('--tiktik-deck-scale', String(scale));
+      child.style.setProperty('--tiktik-deck-y', `${yOffset}px`);
+      child.style.opacity = distFromFront === 0 ? '1' : String(opacity);
+      child.style.zIndex = String(zIndex);
     }
   });
 }
 
 /**
- * Legacy reflow for vertical stacking mode.
+ * Legacy reflow for vertical stacking mode using WAAPI.
  */
 export function animateReflow(container: HTMLElement): void {
-  const gsap = detectGSAP();
-  if (!gsap || prefersReducedMotion()) return;
+  if (prefersReducedMotion() || typeof Element.prototype.animate !== 'function') return;
 
   const children = Array.from(container.children) as HTMLElement[];
   children.forEach((child, i) => {
-    gsap.to(child, {
-      y: 0,
-      duration: 0.3,
-      ease: 'power2.out',
-      delay: i * 0.03,
-    });
+    child.animate(
+      [
+        { transform: 'translateY(-10px)' },
+        { transform: 'translateY(0)' }
+      ],
+      { duration: 300, delay: i * 30, easing: 'cubic-bezier(0.4, 0, 0.2, 1)' }
+    );
   });
 }
 
@@ -275,13 +214,13 @@ export function animateReflow(container: HTMLElement): void {
  * Morph toast for content changes (e.g., promise state update).
  */
 export function animateContentChange(el: HTMLElement, speed: number = 1): void {
-  if (prefersReducedMotion()) return;
-  const gsap = detectGSAP();
-  if (!gsap) return;
-
-  gsap.from(el, {
-    scale: 0.95,
-    duration: 0.3 / speed,
-    ease: 'back.out(1.7)',
-  });
+  if (prefersReducedMotion() || typeof el.animate !== 'function') return;
+  
+  el.animate(
+    [
+      { transform: 'scale(0.95)' },
+      { transform: 'scale(1)' }
+    ],
+    { duration: 300 / speed, easing: 'cubic-bezier(0.175, 0.885, 0.32, 1.275)' }
+  );
 }

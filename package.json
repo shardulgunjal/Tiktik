@@ -23,14 +23,8 @@
   ],
   "author": "",
   "license": "MIT",
-  "peerDependencies": {
-    "gsap": "^3.12.0"
-  },
-  "peerDependenciesMeta": {
-    "gsap": {
-      "optional": true
-    }
-  },
+  "peerDependencies": {},
+  "peerDependenciesMeta": {},
   "devDependencies": {
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^11.1.6",
