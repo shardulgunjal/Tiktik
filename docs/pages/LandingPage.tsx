@@ -319,7 +319,7 @@ export default function LandingPage() {
       <footer className="border-t border-border py-8">
         <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-text-muted">
-            tiktiktoast v0.1.0 — Zero dependencies, ~6KB gzipped
+            tiktiktoast v0.1.2 — Zero dependencies, ~6KB gzipped
           </p>
           <div className="flex items-center gap-4">
             <a href="https://www.npmjs.com/package/tiktiktoast" target="_blank" rel="noopener noreferrer"
