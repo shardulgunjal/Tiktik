@@ -1,226 +1,263 @@
-/**
- * Tiktik - Animations Module
- * Pure CSS + WAAPI animations (Zero GSAP dependency).
- * Includes reduced-motion detection for WCAG compliance.
- */
+// ---------------------------------------------------------------------------
+// Tiktik — Dynamic Island Toast Library
+// src/animations.ts — All WAAPI + CSS animation logic
+// ---------------------------------------------------------------------------
 
-/** Cached reduced-motion preference */
-let reducedMotionQuery: MediaQueryList | null = null;
+import type { ToastData } from './types';
+import {
+  isBrowser,
+  prefersReducedMotion,
+  getAnimationDuration,
+  ENTRY_DURATION,
+  EXIT_DURATION,
+  REPOSITION_DURATION,
+  STACK_SCALE_STEP,
+  STACK_TRANSLATE_STEP,
+  STACK_OPACITY_STEP,
+  EASE_SPRING,
+  EASE_EXIT,
+  storeAnimation,
+} from './utils';
 
-/**
- * Check if the user prefers reduced motion (WCAG).
- */
-export function prefersReducedMotion(): boolean {
-  if (typeof window === 'undefined') return false;
-  if (!reducedMotionQuery) {
-    reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-  }
-  return reducedMotionQuery.matches;
-}
-
-/**
- * Animate a toast entering the screen using CSS animation.
- * Respects prefers-reduced-motion: uses simple opacity fade if active.
- */
-export function animateIn(el: HTMLElement, speed: number = 1): Promise<void> {
-  // Reduced motion: instant show with simple fade
-  if (prefersReducedMotion()) {
-    return new Promise((resolve) => {
-      el.style.opacity = '0';
-      el.getBoundingClientRect(); // Force reflow
-      el.style.transition = 'opacity 0.15s ease';
-      el.style.opacity = '1';
-      setTimeout(resolve, 150);
-    });
-  }
-
-  // Pure CSS animation
-  return new Promise((resolve) => {
-    el.classList.add('tiktik-animate-in');
-    
-    // speed multiplier for animation-duration
-    if (speed !== 1) {
-      el.style.animationDuration = `${0.5 / speed}s`;
-    }
-
-    const handleEnd = () => {
-      el.removeEventListener('animationend', handleEnd);
-      if (speed !== 1) el.style.animationDuration = '';
-      el.classList.remove('tiktik-animate-in'); // Ensure forwards animation releases control
-      resolve();
-    };
-    el.addEventListener('animationend', handleEnd);
-    
-    // Fallback timer if event fails to fire
-    setTimeout(() => {
-      el.removeEventListener('animationend', handleEnd);
-      if (speed !== 1) el.style.animationDuration = '';
-      el.classList.remove('tiktik-animate-in');
-      resolve();
-    }, (550 / speed) + 50);
-  });
-}
+// ---------------------------------------------------------------------------
+// Entry animation
+// ---------------------------------------------------------------------------
 
 /**
- * Animate a toast leaving the screen using CSS animation.
- * Respects prefers-reduced-motion.
+ * Animate a toast entering the screen (scale up + fade in).
+ * @param element - The toast DOM element
+ * @param toastId - The toast's unique ID (for cleanup tracking)
+ * @returns The Animation instance, or null if not in browser
  */
-export function animateOut(el: HTMLElement, speed: number = 1): Promise<void> {
-  if (prefersReducedMotion()) {
-    return new Promise((resolve) => {
-      el.style.transition = 'opacity 0.15s ease';
-      el.style.opacity = '0';
-      setTimeout(() => {
-        el.remove();
-        resolve();
-      }, 150);
-    });
-  }
+export function animateEntry(element: HTMLElement, toastId: string): Animation | null {
+  if (!isBrowser()) return null;
 
-  // Pure CSS animation
-  return new Promise((resolve) => {
-    el.classList.add('tiktik-animate-out');
-    
-    if (speed !== 1) {
-      el.style.animationDuration = `${0.35 / speed}s`;
-    }
+  const duration = getAnimationDuration(ENTRY_DURATION);
 
-    const handleEnd = () => {
-      el.removeEventListener('animationend', handleEnd);
-      el.remove();
-      resolve();
-    };
-    el.addEventListener('animationend', handleEnd);
-    
-    setTimeout(() => {
-      el.removeEventListener('animationend', handleEnd);
-      el.remove();
-      resolve();
-    }, (400 / speed) + 50);
-  });
-}
-
-/**
- * Animate the progress bar from 100% to 0% width.
- * Uses WAAPI (Web Animations API) to allow pausing/resuming.
- */
-export function animateProgress(
-  bar: HTMLElement,
-  duration: number,
-  speed: number = 1
-): { pause: () => void; resume: () => void; kill: () => void } {
-  const actualDuration = duration / speed;
-
-  // Use WAAPI if available
-  if (typeof bar.animate === 'function' && !prefersReducedMotion()) {
-    const animation = bar.animate(
-      [{ width: '100%' }, { width: '0%' }],
-      { duration: actualDuration, easing: 'linear', fill: 'forwards' }
-    );
-    return {
-      pause: () => animation.pause(),
-      resume: () => animation.play(),
-      kill: () => animation.cancel(),
-    };
-  }
-
-  // Fallback (older browsers or reduced motion)
-  bar.style.width = '100%';
-  bar.style.transition = `width ${actualDuration / 1000}s linear`;
-  bar.getBoundingClientRect(); // force reflow
-  bar.style.width = '0%';
-
-  return {
-    pause: () => {
-      const computed = getComputedStyle(bar).width;
-      bar.style.transition = 'none';
-      bar.style.width = computed;
-    },
-    resume: () => {
-      bar.style.transition = `width ${actualDuration / 1000}s linear`;
-      bar.style.width = '0%';
-    },
-    kill: () => {
-      bar.style.transition = 'none';
-    },
-  };
-}
-
-/**
- * Apply Sonner-style deck layout to stacked toasts using pure CSS transitions.
- * Newest toast is fully visible; older ones shrink and peek behind it.
- * On hover, expands to full vertical list.
- */
-export function applyDeckLayout(
-  container: HTMLElement,
-  isExpanded: boolean
-): void {
-  const children = Array.from(container.children) as HTMLElement[];
-  const count = children.length;
-  if (count === 0) return;
-
-  const preferNoMotion = prefersReducedMotion();
-  const isBottom = container.className.includes('bottom');
-  const transition = preferNoMotion 
-    ? 'none' 
-    : 'transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease, box-shadow 0.2s ease, translate 0.2s ease';
-
-  children.forEach((child, i) => {
-    // Determine distance from the "front" (newest) toast
-    const distFromFront = isBottom ? i : (count - 1 - i);
-
-    child.style.transition = transition;
-
-    if (isExpanded || count <= 1) {
-      // Expanded: normal vertical layout
-      child.style.setProperty('--tiktik-deck-scale', '1');
-      child.style.setProperty('--tiktik-deck-y', '0px');
-      child.style.opacity = '1';
-      child.style.zIndex = '';
-    } else {
-      // Deck: scale down and offset older toasts
-      const scale = Math.max(1 - distFromFront * 0.05, 0.85);
-      const yOffset = distFromFront * -8; // Peek above/below
-      const opacity = Math.max(1 - distFromFront * 0.15, 0.4);
-      const zIndex = count - distFromFront;
-
-      child.style.setProperty('--tiktik-deck-scale', String(scale));
-      child.style.setProperty('--tiktik-deck-y', `${yOffset}px`);
-      child.style.opacity = distFromFront === 0 ? '1' : String(opacity);
-      child.style.zIndex = String(zIndex);
-    }
-  });
-}
-
-/**
- * Legacy reflow for vertical stacking mode using WAAPI.
- */
-export function animateReflow(container: HTMLElement): void {
-  if (prefersReducedMotion() || typeof Element.prototype.animate !== 'function') return;
-
-  const children = Array.from(container.children) as HTMLElement[];
-  children.forEach((child, i) => {
-    child.animate(
-      [
-        { transform: 'translateY(-10px)' },
-        { transform: 'translateY(0)' }
-      ],
-      { duration: 300, delay: i * 30, easing: 'cubic-bezier(0.4, 0, 0.2, 1)' }
-    );
-  });
-}
-
-/**
- * Morph toast for content changes (e.g., promise state update).
- */
-export function animateContentChange(el: HTMLElement, speed: number = 1): void {
-  if (prefersReducedMotion() || typeof el.animate !== 'function') return;
-  
-  el.animate(
+  const animation = element.animate(
     [
-      { transform: 'scale(0.95)' },
-      { transform: 'scale(1)' }
+      { transform: 'scale(0.8) translateY(-8px)', opacity: 0 },
+      { transform: 'scale(1) translateY(0)', opacity: 1 },
     ],
-    { duration: 300 / speed, easing: 'cubic-bezier(0.175, 0.885, 0.32, 1.275)' }
+    {
+      duration,
+      easing: EASE_SPRING,
+      fill: 'forwards',
+    }
   );
+
+  storeAnimation(toastId, 'entry', animation);
+  return animation;
+}
+
+// ---------------------------------------------------------------------------
+// Exit animation
+// ---------------------------------------------------------------------------
+
+/**
+ * Animate a toast exiting the screen (scale down + fade out).
+ * @param element - The toast DOM element
+ * @param toastId - The toast's unique ID (for cleanup tracking)
+ * @returns A promise that resolves when the exit animation finishes
+ */
+export function animateExit(element: HTMLElement, toastId: string): Promise<void> {
+  if (!isBrowser()) return Promise.resolve();
+
+  const duration = getAnimationDuration(EXIT_DURATION);
+
+  const animation = element.animate(
+    [
+      { transform: 'scale(1)', opacity: 1 },
+      { transform: 'scale(0.8)', opacity: 0 },
+    ],
+    {
+      duration,
+      easing: EASE_EXIT,
+      fill: 'forwards',
+    }
+  );
+
+  storeAnimation(toastId, 'exit', animation);
+
+  return animation.finished.then(() => undefined);
+}
+
+// ---------------------------------------------------------------------------
+// Stack reposition
+// ---------------------------------------------------------------------------
+
+/**
+ * Animate an existing toast to its new stack position.
+ * Each toast behind the front toast is scaled down, offset, and faded.
+ *
+ * @param element - The toast DOM element
+ * @param index - Position in the visible stack (0 = front)
+ * @param toastId - The toast's unique ID
+ * @param position - 'top' or 'bottom' — affects translate direction
+ * @returns The Animation instance, or null
+ */
+export function animateReposition(
+  element: HTMLElement,
+  index: number,
+  toastId: string,
+  position: 'top' | 'bottom'
+): Animation | null {
+  if (!isBrowser()) return null;
+
+  const duration = getAnimationDuration(REPOSITION_DURATION);
+  const scale = 1 - STACK_SCALE_STEP * index;
+  const translateY = position === 'top'
+    ? index * STACK_TRANSLATE_STEP
+    : -(index * STACK_TRANSLATE_STEP);
+  const opacity = Math.max(0, 1 - STACK_OPACITY_STEP * index);
+
+  const animation = element.animate(
+    [
+      { transform: element.style.transform || 'scale(1) translateY(0)', opacity: element.style.opacity || '1' },
+      { transform: `scale(${scale}) translateY(${translateY}px)`, opacity: String(opacity) },
+    ],
+    {
+      duration,
+      easing: EASE_SPRING,
+      fill: 'forwards',
+    }
+  );
+
+  storeAnimation(toastId, 'reposition', animation);
+  return animation;
+}
+
+// ---------------------------------------------------------------------------
+// Progress bar animation
+// ---------------------------------------------------------------------------
+
+/**
+ * Animate the progress bar from 100% to 0% width over the toast's duration.
+ * @param barElement - The progress bar DOM element
+ * @param duration - Duration in ms for the countdown
+ * @param toastId - The toast's unique ID
+ * @returns The Animation instance, or null
+ */
+export function animateProgressBar(
+  barElement: HTMLElement,
+  duration: number,
+  toastId: string
+): Animation | null {
+  if (!isBrowser()) return null;
+
+  // Don't animate progress with reduced motion — just leave at 100%
+  const effectiveDuration = prefersReducedMotion() ? 0 : duration;
+  if (effectiveDuration <= 0 || !isFinite(duration)) return null;
+
+  const animation = barElement.animate(
+    [
+      { transform: 'scaleX(1)' },
+      { transform: 'scaleX(0)' },
+    ],
+    {
+      duration: effectiveDuration,
+      easing: 'linear',
+      fill: 'forwards',
+    }
+  );
+
+  storeAnimation(toastId, 'progress', animation);
+  return animation;
+}
+
+// ---------------------------------------------------------------------------
+// Morph helper (for deduplication updates)
+// ---------------------------------------------------------------------------
+
+/**
+ * Apply a brief "pulse" morph animation when a toast updates in place.
+ * @param element - The toast DOM element
+ * @param toastId - The toast's unique ID
+ * @returns The Animation instance, or null
+ */
+export function animateMorph(element: HTMLElement, toastId: string): Animation | null {
+  if (!isBrowser()) return null;
+
+  const duration = getAnimationDuration(200);
+
+  const animation = element.animate(
+    [
+      { transform: 'scale(1)' },
+      { transform: 'scale(1.02)' },
+      { transform: 'scale(1)' },
+    ],
+    {
+      duration,
+      easing: EASE_SPRING,
+      fill: 'forwards',
+    }
+  );
+
+  return animation;
+}
+
+// ---------------------------------------------------------------------------
+// Swipe fly-off animation
+// ---------------------------------------------------------------------------
+
+/**
+ * Animate a toast flying off screen after a successful swipe.
+ * @param element - The toast DOM element
+ * @param direction - Direction of the fly-off: 'left' or 'right'
+ * @param toastId - The toast's unique ID
+ * @returns A promise that resolves when the animation finishes
+ */
+export function animateSwipeFlyOff(
+  element: HTMLElement,
+  direction: 'left' | 'right',
+  toastId: string
+): Promise<void> {
+  if (!isBrowser()) return Promise.resolve();
+
+  const duration = getAnimationDuration(200);
+  const translateX = direction === 'left' ? '-120%' : '120%';
+
+  const animation = element.animate(
+    [
+      { transform: element.style.transform || 'translateX(0)', opacity: 1 },
+      { transform: `translateX(${translateX})`, opacity: 0 },
+    ],
+    {
+      duration,
+      easing: EASE_EXIT,
+      fill: 'forwards',
+    }
+  );
+
+  storeAnimation(toastId, 'exit', animation);
+  return animation.finished.then(() => undefined);
+}
+
+/**
+ * Animate a toast snapping back after a cancelled swipe.
+ * @param element - The toast DOM element
+ * @param currentTranslateX - Current X offset in px
+ * @returns The Animation instance, or null
+ */
+export function animateSnapBack(
+  element: HTMLElement,
+  currentTranslateX: number
+): Animation | null {
+  if (!isBrowser()) return null;
+
+  const duration = getAnimationDuration(300);
+
+  const animation = element.animate(
+    [
+      { transform: `translateX(${currentTranslateX}px)` },
+      { transform: 'translateX(0)' },
+    ],
+    {
+      duration,
+      easing: EASE_SPRING,
+      fill: 'forwards',
+    }
+  );
+
+  return animation;
 }
