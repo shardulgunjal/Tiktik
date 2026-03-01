@@ -162,14 +162,14 @@ Tiktik.dismiss()`}
         <div className="space-y-3">
           <div className="p-4 rounded-xl border border-primary/20 bg-primary/5">
             <p className="text-sm text-text-secondary">
-              <span className="text-primary font-semibold">💡 Dedup for real-time updates:</span>{' '}
+              <span className="text-primary font-semibold">Dedup for real-time updates:</span>{' '}
               Use the <code className="text-primary text-xs bg-primary/10 px-1 py-0.5 rounded">id</code> option
               with a stable key to update toasts in place instead of creating new ones. Great for progress updates.
             </p>
           </div>
           <div className="p-4 rounded-xl border border-success/20 bg-success/5">
             <p className="text-sm text-text-secondary">
-              <span className="text-success font-semibold">🚀 SSR-safe by default:</span>{' '}
+              <span className="text-success font-semibold">SSR-safe by default:</span>{' '}
               Tiktik never accesses <code className="text-success text-xs bg-success/10 px-1 py-0.5 rounded">window</code> or{' '}
               <code className="text-success text-xs bg-success/10 px-1 py-0.5 rounded">document</code> at
               import time. Safe to use with Next.js, Nuxt, and any SSR framework.
@@ -177,7 +177,7 @@ Tiktik.dismiss()`}
           </div>
           <div className="p-4 rounded-xl border border-warning/20 bg-warning/5">
             <p className="text-sm text-text-secondary">
-              <span className="text-warning font-semibold">⚡ Bundle splitting:</span>{' '}
+              <span className="text-warning font-semibold">Bundle splitting:</span>{' '}
               The promise handler and gesture modules are lazy-loaded. Your initial bundle stays lean (~5KB gzip),
               with additional chunks only loaded when needed.
             </p>

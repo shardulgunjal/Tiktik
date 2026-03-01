@@ -200,7 +200,7 @@ Override CSS custom properties on `:root`:
 
 | Chunk | Size (gzip) |
 |---|---|
-| **Base** | ~6 KB |
+| **Base** | ~5 KB |
 | Gestures (lazy) | ~0.75 KB |
 | Promise (lazy) | ~0.5 KB |
 

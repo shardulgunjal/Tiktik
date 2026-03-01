@@ -222,7 +222,7 @@ export default function ApiReference() {
               <tbody>
                 <tr className="bg-surface-raised border-b border-border">
                   <td className="px-4 py-3 text-text-primary text-xs font-medium">Base</td>
-                  <td className="px-4 py-3 text-success font-mono text-xs">~6 KB</td>
+                  <td className="px-4 py-3 text-success font-mono text-xs">~5 KB</td>
                 </tr>
                 <tr className="bg-surface border-b border-border">
                   <td className="px-4 py-3 text-text-primary text-xs font-medium">Gestures (lazy)</td>

@@ -100,12 +100,6 @@ export default function LandingPage() {
             <Link to="/docs" className="text-sm text-text-secondary hover:text-text-primary transition-colors">
               Docs
             </Link>
-            <Link to="/docs/components/toast" className="text-sm text-text-secondary hover:text-text-primary transition-colors">
-              Components
-            </Link>
-            <Link to="/docs/api" className="text-sm text-text-secondary hover:text-text-primary transition-colors">
-              API
-            </Link>
             <a
               href="https://www.npmjs.com/package/tiktiktoast"
               target="_blank"
