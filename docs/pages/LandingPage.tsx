@@ -218,16 +218,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* NPM Badges */}
-      <section className="max-w-4xl mx-auto px-6 pb-12">
-        <div className="flex flex-wrap items-center justify-center gap-3">
-          <img src="https://img.shields.io/npm/v/tiktiktoast?style=flat-square&color=6366f1" alt="npm version" />
-          <img src="https://img.shields.io/npm/dm/tiktiktoast?style=flat-square&color=22c55e" alt="npm downloads" />
-          <img src="https://img.shields.io/npm/l/tiktiktoast?style=flat-square&color=f59e0b" alt="license" />
-          <img src="https://img.shields.io/bundlephobia/minzip/tiktiktoast?style=flat-square&color=3b82f6&label=gzip" alt="bundle size" />
-        </div>
-      </section>
-
       {/* Features Grid */}
       <section className="max-w-5xl mx-auto px-6 pb-24">
         <motion.div
@@ -238,7 +228,16 @@ export default function LandingPage() {
           className="text-center mb-12"
         >
           <h2 className="text-3xl font-bold text-text-primary mb-3">Built for developers</h2>
-          <p className="text-text-secondary">Everything you need, nothing you don't.</p>
+          <p className="text-text-secondary mb-3">Everything you need, nothing you don't.</p>
+           {/* NPM Badges */}
+          <div className="max-w-4xl mx-auto">
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <img src="https://img.shields.io/npm/v/tiktiktoast?style=flat-square&color=6366f1" alt="npm version" />
+              <img src="https://img.shields.io/npm/dm/tiktiktoast?style=flat-square&color=22c55e" alt="npm downloads" />
+              <img src="https://img.shields.io/npm/l/tiktiktoast?style=flat-square&color=f59e0b" alt="license" />
+              <img src="https://img.shields.io/bundlephobia/minzip/tiktiktoast?style=flat-square&color=3b82f6&label=gzip" alt="bundle size" />
+            </div>
+          </div>
         </motion.div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
