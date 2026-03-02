@@ -1,22 +1,49 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
-import { Tiktik } from 'tiktiktoast';
-import { Navbar } from '../components/Navbar';
-import pkg from '../../package.json';
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import { Tiktik } from "tiktiktoast";
+import { Navbar } from "../components/Navbar";
+import pkg from "../../package.json";
 
-function FloatingToast({ delay, x, y, rotation, type, message }: {
-  delay: number; x: number; y: number; rotation: number;
-  type: 'success' | 'error' | 'warning' | 'info'; message: string;
+function FloatingToast({
+  delay,
+  x,
+  y,
+  rotation,
+  type,
+  message,
+}: {
+  delay: number;
+  x: number;
+  y: number;
+  rotation: number;
+  type: "success" | "error" | "warning" | "info";
+  message: string;
 }) {
   const colors = {
-    success: { accent: '#22c55e', bg: 'rgba(34,197,94,0.08)', border: 'rgba(34,197,94,0.2)' },
-    error: { accent: '#ef4444', bg: 'rgba(239,68,68,0.08)', border: 'rgba(239,68,68,0.2)' },
-    warning: { accent: '#f59e0b', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.2)' },
-    info: { accent: '#3b82f6', bg: 'rgba(59,130,246,0.08)', border: 'rgba(59,130,246,0.2)' },
+    success: {
+      accent: "#22c55e",
+      bg: "rgba(34,197,94,0.08)",
+      border: "rgba(34,197,94,0.2)",
+    },
+    error: {
+      accent: "#ef4444",
+      bg: "rgba(239,68,68,0.08)",
+      border: "rgba(239,68,68,0.2)",
+    },
+    warning: {
+      accent: "#f59e0b",
+      bg: "rgba(245,158,11,0.08)",
+      border: "rgba(245,158,11,0.2)",
+    },
+    info: {
+      accent: "#3b82f6",
+      bg: "rgba(59,130,246,0.08)",
+      border: "rgba(59,130,246,0.2)",
+    },
   };
   const c = colors[type];
-  const icons = { success: '✓', error: '✕', warning: '⚠', info: 'ℹ' };
+  const icons = { success: "✓", error: "✕", warning: "⚠", info: "ℹ" };
 
   return (
     <motion.div
@@ -35,7 +62,7 @@ function FloatingToast({ delay, x, y, rotation, type, message }: {
         delay,
         repeat: Infinity,
         repeatDelay: 2,
-        ease: 'easeInOut',
+        ease: "easeInOut",
       }}
     >
       <div
@@ -46,8 +73,12 @@ function FloatingToast({ delay, x, y, rotation, type, message }: {
           boxShadow: `0 8px 32px ${c.border}, 0 0 0 1px rgba(255,255,255,0.05)`,
         }}
       >
-        <span className="text-sm" style={{ color: c.accent }}>{icons[type]}</span>
-        <span className="text-sm font-medium text-text-primary/80 whitespace-nowrap">{message}</span>
+        <span className="text-sm" style={{ color: c.accent }}>
+          {icons[type]}
+        </span>
+        <span className="text-sm font-medium text-text-primary/80 whitespace-nowrap">
+          {message}
+        </span>
       </div>
     </motion.div>
   );
@@ -55,12 +86,12 @@ function FloatingToast({ delay, x, y, rotation, type, message }: {
 
 function InstallSnippet() {
   const [copied, setCopied] = useState(false);
-  const command = 'npm install tiktiktoast';
+  const command = "npm install tiktiktoast";
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(command);
     setCopied(true);
-    Tiktik.success('Copied to clipboard!');
+    Tiktik.success("Copied to clipboard!");
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -74,19 +105,34 @@ function InstallSnippet() {
       <span className="text-text-muted font-mono text-sm">$</span>
       <span className="font-mono text-sm text-text-primary">{command}</span>
       <span className="text-xs text-text-muted group-hover:text-text-secondary transition-colors ml-2">
-        {copied ? '✓' : '⌘C'}
+        {copied ? "✓" : "⌘C"}
       </span>
     </button>
   );
 }
 
 const features = [
-  { title: 'Zero Dependencies', desc: 'Pure vanilla JS + TypeScript + WAAPI. Nothing extra.' },
-  { title: 'Dynamic Island Style', desc: 'Pill-to-card morphing transitions with spring physics.' },
-  { title: 'Accessible', desc: 'ARIA roles, keyboard nav, screen reader support built in.' },
-  { title: 'Promise Tracking', desc: 'Loading → Success/Error transitions with one API call.' },
-  { title: 'SSR Safe', desc: 'Works in Next.js, Nuxt, and any SSR framework.' },
-  { title: 'Customizable', desc: 'CSS variables, custom icons, renderers, and more.' },
+  {
+    title: "Zero Dependencies",
+    desc: "Pure vanilla JS + TypeScript + WAAPI. Nothing extra.",
+  },
+  {
+    title: "Dynamic Island Style",
+    desc: "Pill-to-card morphing transitions with spring physics.",
+  },
+  {
+    title: "Accessible",
+    desc: "ARIA roles, keyboard nav, screen reader support built in.",
+  },
+  {
+    title: "Promise Tracking",
+    desc: "Loading → Success/Error transitions with one API call.",
+  },
+  { title: "SSR Safe", desc: "Works in Next.js, Nuxt, and any SSR framework." },
+  {
+    title: "Customizable",
+    desc: "CSS variables, custom icons, renderers, and more.",
+  },
 ];
 
 export default function LandingPage() {
@@ -104,7 +150,6 @@ export default function LandingPage() {
 
         <div className="relative max-w-[1400px] mx-auto px-6 pt-24 pb-20">
           <div className="text-center max-w-3xl mx-auto">
-            
             {/* Badge */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -140,8 +185,8 @@ export default function LandingPage() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="text-lg text-text-secondary max-w-xl mx-auto mb-10 leading-relaxed"
             >
-              Dynamic Island–style notifications for the web.
-              Zero dependencies, SSR-safe, accessible, and around 5KB gzipped.
+              Dynamic Island–style notifications for the web. Zero dependencies,
+              SSR-safe, accessible, and around 5KB gzipped.
             </motion.p>
 
             {/* CTA Buttons */}
@@ -181,11 +226,42 @@ export default function LandingPage() {
           </div>
 
           {/* Floating Toast Animations */}
-          <div className="relative h-48 mt-12 hidden md:block" style={{ perspective: '1000px' }}>
-            <FloatingToast delay={0} x={-30} y={-20} rotation={-8} type="success" message="Changes saved!" />
-            <FloatingToast delay={1.5} x={20} y={10} rotation={6} type="error" message="Upload failed" />
-            <FloatingToast delay={3} x={-10} y={20} rotation={-4} type="info" message="New update" />
-            <FloatingToast delay={4.5} x={25} y={-15} rotation={10} type="warning" message="Session expiring" />
+          <div
+            className="relative h-48 mt-12 hidden md:block"
+            style={{ perspective: "1000px" }}
+          >
+            <FloatingToast
+              delay={0}
+              x={-30}
+              y={-20}
+              rotation={-8}
+              type="success"
+              message="Changes saved!"
+            />
+            <FloatingToast
+              delay={1.5}
+              x={20}
+              y={10}
+              rotation={6}
+              type="error"
+              message="Upload failed"
+            />
+            <FloatingToast
+              delay={3}
+              x={-10}
+              y={20}
+              rotation={-4}
+              type="info"
+              message="New update"
+            />
+            <FloatingToast
+              delay={4.5}
+              x={25}
+              y={-15}
+              rotation={10}
+              type="warning"
+              message="Session expiring"
+            />
           </div>
         </div>
       </section>
@@ -199,15 +275,31 @@ export default function LandingPage() {
           transition={{ duration: 0.5 }}
           className="text-center mb-12"
         >
-          <h2 className="text-3xl font-bold text-text-primary mb-3">Built for developers</h2>
-          <p className="text-text-secondary mb-3">Everything you need, nothing you don't.</p>
-           {/* NPM Badges */}
+          <h2 className="text-3xl font-bold text-text-primary mb-3">
+            Built for developers
+          </h2>
+          <p className="text-text-secondary mb-3">
+            Everything you need, nothing you don't.
+          </p>
+          {/* NPM Badges */}
           <div className="max-w-4xl mx-auto">
             <div className="flex flex-wrap items-center justify-center gap-3">
-              <img src="https://img.shields.io/npm/v/tiktiktoast?style=flat-square&color=6366f1" alt="npm version" />
-              <img src="https://img.shields.io/npm/dm/tiktiktoast?style=flat-square&color=22c55e" alt="npm downloads" />
-              <img src="https://img.shields.io/npm/l/tiktiktoast?style=flat-square&color=f59e0b" alt="license" />
-              <img src="https://img.shields.io/bundlephobia/minzip/tiktiktoast?style=flat-square&color=3b82f6&label=gzip" alt="bundle size" />
+              <img
+                src="https://img.shields.io/npm/v/tiktiktoast?style=flat-square&color=6366f1"
+                alt="npm version"
+              />
+              <img
+                src="https://img.shields.io/npm/dm/tiktiktoast?style=flat-square&color=22c55e"
+                alt="npm downloads"
+              />
+              <img
+                src="https://img.shields.io/npm/l/tiktiktoast?style=flat-square&color=f59e0b"
+                alt="license"
+              />
+              <img
+                src="https://img.shields.io/bundlephobia/minzip/tiktiktoast?style=flat-square&color=3b82f6&label=gzip"
+                alt="bundle size"
+              />
             </div>
           </div>
         </motion.div>
@@ -226,13 +318,14 @@ export default function LandingPage() {
               <h3 className="text-sm font-semibold text-text-primary mb-1 group-hover:text-primary transition-colors">
                 {f.title}
               </h3>
-              <p className="text-xs text-text-muted leading-relaxed">{f.desc}</p>
+              <p className="text-xs text-text-muted leading-relaxed">
+                {f.desc}
+              </p>
             </motion.div>
           ))}
         </div>
       </section>
 
-      {/* Quick Start */}
       <section className="max-w-[1400px] mx-auto px-6 pb-24">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -240,7 +333,9 @@ export default function LandingPage() {
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
-          <h2 className="text-2xl font-bold text-text-primary mb-6 text-center">Get started in seconds</h2>
+          <h2 className="text-2xl font-bold text-text-primary mb-6 text-center">
+            Get started in seconds
+          </h2>
           <div className="rounded-xl border border-border bg-surface-raised overflow-hidden">
             <div className="px-4 py-2.5 border-b border-border flex items-center gap-2">
               <div className="flex gap-1.5">
@@ -248,19 +343,24 @@ export default function LandingPage() {
                 <div className="w-3 h-3 rounded-full bg-warning/50" />
                 <div className="w-3 h-3 rounded-full bg-success/50" />
               </div>
-              <span className="text-[11px] text-text-muted font-mono ml-2">app.ts</span>
+              <span className="text-[11px] text-text-muted font-mono ml-2">
+                app.ts
+              </span>
             </div>
             <pre className="p-5 font-mono text-sm leading-loose text-text-secondary overflow-x-auto">
               <code>
-                <span className="text-primary">import</span>{' { Tiktik } '}
-                <span className="text-primary">from</span>{' '}
-                <span className="text-success">'tiktiktoast'</span>{'\n\n'}
-                <span className="text-text-muted">// One line. That's it.</span>{'\n'}
-                {'Tiktik.'}
+                <span className="text-primary">import</span>
+                {" { Tiktik } "}
+                <span className="text-primary">from</span>{" "}
+                <span className="text-success">'tiktiktoast'</span>
+                {"\n\n"}
+                <span className="text-text-muted">// One line. That's it.</span>
+                {"\n"}
+                {"Tiktik."}
                 <span className="text-info">success</span>
-                {'('}
+                {"("}
                 <span className="text-success">'Changes saved!'</span>
-                {')'}
+                {")"}
               </code>
             </pre>
           </div>
@@ -273,8 +373,14 @@ export default function LandingPage() {
             tiktiktoast v{pkg.version} — Zero dependencies, ~5KB gzipped
           </p>
           <div className="flex items-center gap-4">
-            <a href="https://www.npmjs.com/package/tiktiktoast" target="_blank" rel="noopener noreferrer"
-               className="text-xs text-text-muted hover:text-text-secondary transition-colors">npm</a>
+            <a
+              href="https://www.npmjs.com/package/tiktiktoast"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-text-muted hover:text-text-secondary transition-colors"
+            >
+              npm
+            </a>
             <span className="text-text-muted/30">·</span>
             <span className="text-xs text-text-muted">MIT License</span>
           </div>
