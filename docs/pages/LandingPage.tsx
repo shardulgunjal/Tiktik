@@ -161,7 +161,6 @@ export default function LandingPage() {
               v{pkg.version} — Now on npm
             </motion.div>
 
-            {/* Heading */}
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
