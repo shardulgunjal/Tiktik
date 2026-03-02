@@ -150,7 +150,6 @@ export default function LandingPage() {
 
         <div className="relative max-w-[1400px] mx-auto px-6 pt-24 pb-20">
           <div className="text-center max-w-3xl mx-auto">
-            {/* Badge */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
