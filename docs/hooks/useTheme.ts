@@ -8,7 +8,7 @@ export function useTheme() {
     if (savedTheme && ["dark", "light", "system"].includes(savedTheme)) {
       return savedTheme;
     }
-    // Default to dark for this specific project based on previous defaults
+
     return "dark";
   });
 
