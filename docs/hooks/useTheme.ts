@@ -8,7 +8,6 @@ export function useTheme() {
     if (savedTheme && ["dark", "light", "system"].includes(savedTheme)) {
       return savedTheme;
     }
-
     return "dark";
   });
 
@@ -29,7 +28,6 @@ export function useTheme() {
     localStorage.setItem("tiktik-theme", theme);
   }, [theme]);
 
-  // Listen for system theme changes if 'system' is selected
   useEffect(() => {
     if (theme !== "system") return;
 
