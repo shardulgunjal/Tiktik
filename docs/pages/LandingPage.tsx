@@ -140,7 +140,6 @@ export default function LandingPage() {
     <div className="min-h-screen bg-surface">
       <Navbar />
 
-      {/* Hero */}
       <section className="relative overflow-hidden">
         {/* Gradient Orbs */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
