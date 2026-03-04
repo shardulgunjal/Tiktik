@@ -258,7 +258,6 @@ export default function ApiReference() {
         <InterfaceTable fields={configFields} />
       </section>
 
-      {/* CSS Custom Properties */}
       <section className="mb-12">
         <h2 className="text-xl font-semibold text-text-primary mb-4">
           CSS Custom Properties
