@@ -228,7 +228,6 @@ export default function ApiReference() {
         </div>
       </section>
 
-      {/* ToastOptions Interface */}
       <section className="mb-12">
         <h2 className="text-xl font-semibold text-text-primary mb-4">
           <code className="text-primary">ToastOptions</code> Interface
